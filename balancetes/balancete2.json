@@ -1,0 +1,262 @@
+{
+  "metadata": {
+    "razao_social": "Allos Projetos Industriais Ltda Piracicaba/SP",
+    "periodo": "01/01/2025 a 31/03/2025"
+  },
+  "balancete": {
+    "conta": "1",
+    "descricao": "ATIVO",
+    "children": [
+      {
+        "conta": "1.01",
+        "descricao": "Ativo Circulante",
+        "children": [
+          {
+            "conta": "1.01.01",
+            "descricao": "Caixa e Equivalentes de Caixa",
+            "children": [
+              {
+                "conta": "1.01.01.01.01.0001",
+                "descricao": "Caixa",
+                "saldo_atual": 45954.86,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 45954.86
+              },
+              {
+                "conta": "1.01.01.02.01.0001",
+                "descricao": "Itau S/A - C/C 51481-1",
+                "saldo_atual": 10.0,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 10.0
+              },
+              {
+                "conta": "1.01.01.03.01.0003",
+                "descricao": "Aplicação financeira - Itau Aut Mais",
+                "saldo_atual": 64138.45,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 64138.45
+              }
+            ]
+          },
+          {
+            "conta": "1.01.05",
+            "descricao": "Créditos",
+            "children": [
+              {
+                "conta": "1.01.05.01.05.0003",
+                "descricao": "IRRF a Compensar",
+                "saldo_atual": 7026.2,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 7026.2
+              },
+              {
+                "conta": "1.01.05.01.05.0020",
+                "descricao": "Irrf s/ aplicação Financeira",
+                "saldo_atual": 13.9,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 13.9
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "conta": "1.07",
+        "descricao": "Ativo não Circulante",
+        "children": [
+          {
+            "conta": "1.07.00",
+            "descricao": "Realizável a Longo Prazo",
+            "children": [
+              {
+                "conta": "1.07.00.03.01.0001",
+                "descricao": "Helder Ferreira Pereira Forte (Empréstimo a Sócio)",
+                "saldo_atual": 1013168.5,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 1013168.5
+              },
+              {
+                "conta": "1.07.00.03.01.0002",
+                "descricao": "Solarium Residence e Incorporadora SPE Ltda (Empréstimo a Sócio)",
+                "saldo_atual": 3692935.0,
+                "saldo_anterior": 0.0,
+                "debito": 173403.9,
+                "credito": 3519531.1
+              }
+            ]
+          },
+          {
+            "conta": "1.07.01",
+            "descricao": "Investimentos",
+            "children": [
+              {
+                "conta": "1.07.01.01.01.0001",
+                "descricao": "Solarium Residence Incorporadora SPE Ltda (Coligadas/Controladas)",
+                "saldo_atual": 2350000.0,
+                "saldo_anterior": 662821.0,
+                "debito": 0.0,
+                "credito": 3012821.0
+              },
+              {
+                "conta": "1.07.01.01.02.0001",
+                "descricao": "Solarium Residence Incorporadora SPE Ltda (Resultado de Equivalência Patrimonial)",
+                "saldo_atual": 1380597.24,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 1380597.24
+              },
+              {
+                "conta": "1.07.01.04.01.0001",
+                "descricao": "Solarium Residence Incorporadora SPE Ltda (Ágio na Subscrição de Cotas)",
+                "saldo_atual": 330000.0,
+                "saldo_anterior": 0.0,
+                "debito": 0.0,
+                "credito": 330000.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "passivo": {
+    "conta": "2",
+    "descricao": "PASSIVO",
+    "children": [
+      {
+        "conta": "2.01",
+        "descricao": "Passivo Circulante",
+        "children": [
+          {
+            "conta": "2.01.01.01.01.0003",
+            "descricao": "MAP SERVICOS CONTABEIS S S",
+            "saldo_atual": 3500.0,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 3500.0
+          },
+          {
+            "conta": "2.01.01.01.01.0008",
+            "descricao": "Formma Serviços Contabeis SS",
+            "saldo_atual": 9262.0,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 9262.0
+          },
+          {
+            "conta": "2.01.01.03.03.0020",
+            "descricao": "IOF a Recolher",
+            "saldo_atual": 48332.54,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 48332.54
+          },
+          {
+            "conta": "2.01.01.17.01.0008",
+            "descricao": "Outras Obrigações a pagar",
+            "saldo_atual": 108136.23,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 108136.23
+          }
+        ]
+      },
+      {
+        "conta": "2.03",
+        "descricao": "Passivo não Circulante",
+        "children": [
+          {
+            "conta": "2.03.01.07.01.0001",
+            "descricao": "Antonio Candido Losa Capitão (Empréstimo de Sócios)",
+            "saldo_atual": 1525613.25,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 1525613.25
+          },
+          {
+            "conta": "2.03.01.07.01.0002",
+            "descricao": "José de Morais Vieira (Empréstimo de Sócios)",
+            "saldo_atual": 2286642.16,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 2286642.16
+          },
+          {
+            "conta": "2.03.01.07.01.0003",
+            "descricao": "Valdemar Ferreira da Cunha (Empréstimo de Sócios)",
+            "saldo_atual": 3819724.06,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 3819724.06
+          }
+        ]
+      },
+      {
+        "conta": "2.07",
+        "descricao": "Patrimônio Líquido",
+        "children": [
+          {
+            "conta": "2.07.01.01.03.0001",
+            "descricao": "Antonio Candido Losa Capitão (Capital Social)",
+            "saldo_atual": 301960.0,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 301960.0
+          },
+          {
+            "conta": "2.07.01.01.03.0003",
+            "descricao": "José de Morais Vieira (Capital Social)",
+            "saldo_atual": 301960.0,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 301960.0
+          },
+          {
+            "conta": "2.07.01.01.03.0004",
+            "descricao": "Valdemar Ferreira da Cunha (Capital Social)",
+            "saldo_atual": 301960.0,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 301960.0
+          },
+          {
+            "conta": "2.07.07.01.01.0001",
+            "descricao": "Lucros Acumulados e/ou Saldo à Disposição da Assembléia",
+            "saldo_atual": 489417.1,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 489417.1
+          },
+          {
+            "conta": "2.07.07.01.02.0001",
+            "descricao": "(-) Prejuízos Acumulados",
+            "saldo_atual": 2577808.57,
+            "saldo_anterior": 0.0,
+            "debito": 0.0,
+            "credito": 2577808.57
+          }
+        ]
+      }
+    ]
+  },
+  "resultado": {
+    "conta": "3",
+    "descricao": "RESULTADO LÍQUIDO DO PERÍODO",
+    "children": [
+      {
+        "conta": "3.01.01.07.01.0009",
+        "descricao": "Serviços Prestados Pessoa Jurídica",
+        "saldo_atual": 6632.0,
+        "saldo_anterior": 0.0,
+        "debito": 0.0,
+        "credito": 6632.0
+      }
+    ]
+  }
+}
