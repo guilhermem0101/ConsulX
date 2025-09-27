@@ -1,7 +1,10 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
+from calcula_resultados import compute_indicators_from_files
 
+files = ["balancetes/balancete1.json", "balancetes/balancete1.json"]
+result = compute_indicators_from_files(files)
 # ======================
 # CONFIGURAÇÕES GERAIS
 # ======================
