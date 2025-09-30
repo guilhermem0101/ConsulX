@@ -3,8 +3,17 @@ import plotly.express as px
 import pandas as pd
 from calcula_resultados import compute_indicators_from_files
 
-files = ["balancetes/balancete1.json", "balancetes/balancete1.json"]
+files = ["balancetes/balancete1.json"]
 result = compute_indicators_from_files(files)
+df_balancete = pd.json_normalize(
+    result["per_file"]).drop(columns=["file", "n_leaves"])
+
+df_balancete.columns = df_balancete.columns.str.replace("indicators.", "")
+receita_bruta = df_balancete.loc[0, "receita_bruta"]
+receita_liquida = df_balancete.loc[0, "receita_liquida"]
+lucro_bruito = df_balancete.loc[0, "lucro_bruto"]
+lucro_liquido = df_balancete.loc[0, "lucro_liquido"]
+disponibilidade_caixa = df_balancete.loc[0, "disponibilidade_caixa"]
 # ======================
 # CONFIGURAÇÕES GERAIS
 # ======================
@@ -14,7 +23,7 @@ st.set_page_config(page_title="Dashboard Contábil", layout="wide")
 # SIDEBAR (MENU LATERAL)
 # ======================
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/3135/3135715.png", width=80)
+    st.image("https://i.imgur.com/7KKstrd.jpeg", width=180)
     st.title("CONSULX")
     st.markdown("### 📊 Dashboard")
     st.markdown("### 👥 Clientes")
@@ -31,15 +40,23 @@ with abas[1]:  # Aba "Contábil"
     # ======================
     # MÉTRICAS SUPERIORES
     # ======================
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.metric("Receita Bruta", "1.10M", "-10,1%")
+        st.metric("Receita Bruta", f"R$ {receita_bruta:,.2f}".replace(
+            ",", "X").replace(".", ",").replace("X", "."))
     with col2:
-        st.metric("Receita Líquida", "900,98Mil")
+        st.metric("Receita Líquida", f"R$ {receita_liquida:,.2f}".replace(
+            ",", "X").replace(".", ",").replace("X", "."))
     with col3:
-        st.metric("Lucro Líquido", "600,1Mil", "+3,5%")
+        st.metric("Lucro Bruto", f"R$ {lucro_bruito:,.2f}".replace(
+            ",", "X").replace(".", ",").replace("X", "."))
     with col4:
-        st.metric("Lucratividade", "212,07Mil", "+18,81%")
+        st.metric("Lucro Líquido", f"R$ {lucro_liquido:,.2f}".replace(
+            ",", "X").replace(".", ",").replace("X", "."))
+    with col5:
+        st.metric("Disponibilidade de Caixa", f"R$ {disponibilidade_caixa:,.2f}".replace(
+            ",", "X").replace(".", ",").replace("X", "."))
+
 
     st.markdown("---")
 
