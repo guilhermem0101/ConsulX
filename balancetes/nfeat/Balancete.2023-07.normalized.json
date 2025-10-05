@@ -27,14 +27,11 @@
                       "saldo_anterior": 41269.69,
                       "debito": 74245.34,
                       "credito": 13968.7,
-                      "saldo_atual": 101546.33,
-                      "codigo": "1.1.01.01.00001"
+                      "saldo_atual": 101546.33
                     }
-                  ],
-                  "codigo": "1.1.01.01"
+                  ]
                 }
-              ],
-              "codigo": "1.1.01"
+              ]
             },
             {
               "conta": "01.1.2",
@@ -50,11 +47,9 @@
                       "saldo_anterior": 39090.0,
                       "debito": 0.0,
                       "credito": 0.0,
-                      "saldo_atual": 39090.0,
-                      "codigo": "1.1.02.01.00001"
+                      "saldo_atual": 39090.0
                     }
-                  ],
-                  "codigo": "1.1.02.01"
+                  ]
                 },
                 {
                   "conta": "01.1.2.08",
@@ -66,11 +61,9 @@
                       "saldo_anterior": 0.0,
                       "debito": 1113.79,
                       "credito": 0.0,
-                      "saldo_atual": 1113.79,
-                      "codigo": "1.1.02.02.00001"
+                      "saldo_atual": 1113.79
                     }
-                  ],
-                  "codigo": "1.1.02.02"
+                  ]
                 },
                 {
                   "conta": "01.1.2.10",
@@ -82,11 +75,9 @@
                       "saldo_anterior": 0.0,
                       "debito": 13968.7,
                       "credito": 0.0,
-                      "saldo_atual": 13968.7,
-                      "codigo": "1.1.02.03.00001"
+                      "saldo_atual": 13968.7
                     }
-                  ],
-                  "codigo": "1.1.02.03"
+                  ]
                 },
                 {
                   "conta": "01.1.2.12",
@@ -98,17 +89,13 @@
                       "saldo_anterior": 13500.0,
                       "debito": 0.0,
                       "credito": 0.0,
-                      "saldo_atual": 13500.0,
-                      "codigo": "1.1.02.04.00001"
+                      "saldo_atual": 13500.0
                     }
-                  ],
-                  "codigo": "1.1.02.04"
+                  ]
                 }
-              ],
-              "codigo": "1.1.02"
+              ]
             }
-          ],
-          "codigo": "1.1"
+          ]
         },
         {
           "conta": "01.2",
@@ -128,11 +115,9 @@
                       "saldo_anterior": 0.0,
                       "debito": 18024.51,
                       "credito": 0.0,
-                      "saldo_atual": 18024.51,
-                      "codigo": "1.2.01.01.00001"
+                      "saldo_atual": 18024.51
                     }
-                  ],
-                  "codigo": "1.2.01.01"
+                  ]
                 },
                 {
                   "conta": "01.2.3.05",
@@ -144,20 +129,15 @@
                       "saldo_anterior": 0.0,
                       "debito": 0.0,
                       "credito": 185.2,
-                      "saldo_atual": -185.2,
-                      "codigo": "1.2.01.02.00001"
+                      "saldo_atual": -185.2
                     }
-                  ],
-                  "codigo": "1.2.01.02"
+                  ]
                 }
-              ],
-              "codigo": "1.2.01"
+              ]
             }
-          ],
-          "codigo": "1.2"
+          ]
         }
-      ],
-      "codigo": "1"
+      ]
     }
   ],
   "passivo": {
