@@ -14,7 +14,10 @@ Atenção: o script usa heurísticas por palavras-chave. Ajuste `keywords` confo
 """
 import json
 import os
+import re
 from typing import List, Dict, Any 
+from pathlib import Path
+from datetime import datetime
 import pandas as pd
 # --- heurísticas simples (ajuste se necessário) ---
 REVENUE_KEYWORDS = ["receita", "receitas", "venda",
@@ -189,39 +192,245 @@ def compute_indicators_from_files(file_paths: List[str]) -> Dict[str, Any]:
         k: round(v, 2) for k, v in totals.items()}}
     return combined
 
-
-# -------------------- CLI opcional --------------------
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(
-        description="Compute indicators from balancete JSONs")
-    parser.add_argument("--files", "-f", nargs="+",
-                        required=True, help="JSON files")
-    parser.add_argument(
-        "--out", "-o", default="resultados_indicadores.json", help="output file")
-    args = parser.parse_args()
-    res = compute_indicators_from_files(args.files)
-    with open(args.out, "w", encoding="utf-8") as f:
-        json.dump(res, f, ensure_ascii=False, indent=2)
-    print("Saved:", args.out)
+# -----------------------------------------------------------------------------------------------------
+# -----------------------
+# Helpers para conversão
+# -----------------------
+_br_num_re = re.compile(r'^\s*([+-]?[0-9\.\,]+)\s*([DC])?\s*$', re.IGNORECASE)
 
 
-def extract_accounts(node, hierarchy=None):
-    if hierarchy is None:
-        hierarchy = []
+def br_str_to_float_and_sinal(s: str):
+    """
+    Converte strings brasileiras '1.234,56D' -> (1234.56, 'D').
+    Retorna (None, '') se não for possível parsear.
+    """
+    if not isinstance(s, str):
+        return None, ""
+    m = _br_num_re.match(s.strip())
+    if not m:
+        return None, ""
+    num_str = m.group(1)
+    suf = (m.group(2) or "").upper()
+    num_str = num_str.replace(".", "").replace(",", ".")
+    try:
+        val = float(num_str)
+    except:
+        return None, suf
+    return val, suf
 
-    current_hierarchy = hierarchy + [node["descricao"]]
-    rows = []
 
-    if "children" in node:
-        for child in node["children"]:
-            rows.extend(extract_accounts(child, current_hierarchy))
+def parse_value_field(value):
+    """
+    Aceita:
+      - dict {"valor": float, "sinal": "D"}
+      - string "1.234,56D"
+      - numeric
+    Retorna (valor_float_or_None, sinal_str_or_empty)
+    """
+    if value is None:
+        return None, ""
+    if isinstance(value, dict):
+        val = value.get("valor")
+        sinal = (value.get("sinal") or "").upper()
+        # ensure float
+        try:
+            valf = float(val) if val is not None else None
+        except:
+            valf = None
+        return valf, sinal
+    if isinstance(value, (int, float)):
+        return float(value), ""
+    if isinstance(value, str):
+        return br_str_to_float_and_sinal(value)
+    return None, ""
+
+
+def periodo_to_mes_ref(periodo_str: str, fallback_filename: str = None):
+    """
+    Converte '01/02/2023 - 28/02/2023' -> '2023-02'.
+    Se falhar, tenta extrair do filename: 'Balancete.2023-02.json' -> '2023-02'
+    """
+    if isinstance(periodo_str, str) and "-" in periodo_str:
+        parts = periodo_str.split("-")
+        # pegar a data da direita (fim do periodo) e extrair mês/ano
+        right = parts[-1].strip()
+        try:
+            dt = datetime.strptime(right, "%d/%m/%Y")
+            return f"{dt.year:04d}-{dt.month:02d}"
+        except:
+            pass
+    # fallback usando filename
+    if fallback_filename:
+        m = re.search(r'(\d{4})-(\d{2})', fallback_filename)
+        if m:
+            return f"{m.group(1)}-{m.group(2)}"
+    return None
+
+# -----------------------
+# Flatten recursion
+# -----------------------
+
+
+def _flatten_account_node(node: dict, rows: list, periodo: str, level: int = 0, parent_code: str = None):
+    """
+    Percorre recursivamente 'node' (uma conta / grupo) e adiciona linhas em `rows`.
+    Cada linha contém dados do saldo_atual, saldo_anterior, debito, credito (valor + sinal).
+    """
+    if not isinstance(node, dict):
+        return
+
+    codigo = node.get("codigo")
+    descricao = node.get("descricao") or node.get("conta") or ""
+    # montar um identificador (se existir apenas codigo)
+    identificador = f"{codigo} - {descricao}" if codigo else descricao
+
+    # extrair campos relevantes e parsear
+    sa_val, sa_sinal = parse_value_field(node.get("saldo_atual"))
+    san_val, san_sinal = parse_value_field(node.get("saldo_anterior"))
+    deb_val, deb_sinal = parse_value_field(node.get("debito"))
+    cred_val, cred_sinal = parse_value_field(node.get("credito"))
+
+    # criar linha (uma única linha por conta/periodo)
+    row = {
+        "mes_ref": periodo,
+        # texto original do periodo (pode sobrescrever depois)
+        "periodo_text": periodo,
+        "codigo": codigo,
+        "conta": descricao,
+        "identificador": identificador,
+        "nivel": level,
+        "saldo_atual_valor": sa_val,
+        "saldo_atual_sinal": sa_sinal,
+        "saldo_anterior_valor": san_val,
+        "saldo_anterior_sinal": san_sinal,
+        "debito_valor": deb_val,
+        "debito_sinal": deb_sinal,
+        "credito_valor": cred_val,
+        "credito_sinal": cred_sinal,
+        "parent_codigo": parent_code
+    }
+    # signed saldo (útil para plot): tratamos D => positivo, C => negativo
+    if sa_val is not None:
+        if sa_sinal == "C":
+            row["saldo_atual_signed"] = -abs(sa_val)
+        else:
+            # D or '' -> positivo
+            row["saldo_atual_signed"] = abs(sa_val)
     else:
-        row = {f"nivel_{i+1}": level for i,
-               level in enumerate(current_hierarchy)}
-        row["conta"] = node["conta"]
-        row["descricao"] = node["descricao"]
-        row["saldo_atual"] = node.get("saldo_atual", 0.0)
-        rows.append(row)
+        row["saldo_atual_signed"] = None
 
-    return rows
+    rows.append(row)
+
+    # processar filhos se existirem
+    children = node.get("children") or node.get("filhos") or []
+    if isinstance(children, list):
+        for child in children:
+            _flatten_account_node(child, rows, periodo,
+                                  level=level + 1, parent_code=codigo)
+
+# -----------------------
+# Função pública
+# -----------------------
+
+
+def load_balancetes_to_df(folder: str = "balancetes", pattern: str = "*.json"):
+    """
+    Lê todos os arquivos JSON na pasta `folder` (por padrão ./balancetes),
+    achata a estrutura hierárquica e retorna um pandas.DataFrame com colunas:
+      ['mes_ref', 'periodo_text', 'codigo', 'conta', 'identificador', 'nivel',
+       'saldo_atual_valor', 'saldo_atual_sinal', 'saldo_atual_signed', ...]
+    Além disso, preenche saldos de contas sintéticas (quando NaN) somando os saldos
+    das contas descendentes.
+    """
+    p = Path(folder)
+    if not p.exists():
+        raise FileNotFoundError(f"Pasta '{folder}' não encontrada")
+
+    files = sorted(p.glob(pattern))
+    all_rows = []
+
+    for f in files:
+        try:
+            raw = json.loads(f.read_text(encoding="utf-8"))
+        except Exception as e:
+            # tentar pular arquivo que não seja JSON válido
+            print(f"AVISO: falha ao ler {f.name}: {e}")
+            continue
+
+        # obter periodo do metadata (se existir)
+        meta = raw.get("metadata") if isinstance(raw, dict) else {}
+        periodo_text = meta.get("periodo") if meta else None
+        mes_ref = periodo_to_mes_ref(periodo_text, fallback_filename=f.name)
+        # se não veio periodo_text, tentar metadado com outro nome
+        if not periodo_text and isinstance(raw, dict):
+            periodo_text = raw.get("periodo") or raw.get("meta_periodo")
+
+        # localizar raiz do balancete: 'balancete' ou 'balancetes'
+        bal = raw.get("balancete") or raw.get(
+            "balancetes") or raw.get("Balancete") or []
+        if isinstance(bal, dict):
+            # algumas estruturas podem ter um dict com top-level accounts
+            # transformar em lista
+            bal = [bal]
+
+        # caso não venha balancete no topo, tentar encontrar lista em qualquer chave
+        if not bal:
+            for k, v in (raw.items() if isinstance(raw, dict) else []):
+                if isinstance(v, list):
+                    # heurística: lista de dicts com 'descricao' ou 'codigo'
+                    if v and isinstance(v[0], dict) and ("descricao" in v[0] or "codigo" in v[0]):
+                        bal = v
+                        break
+
+        # para cada top-level account, achatar recursivamente
+        for top in (bal or []):
+            _flatten_account_node(
+                top, all_rows, mes_ref or periodo_text or f.name, level=0, parent_code=None)
+
+    # transformar em DataFrame
+    df = pd.DataFrame(all_rows)
+
+    # preencher saldos sintéticos com soma dos descendentes (quando saldo_atual_valor for NaN)
+    if not df.empty:
+        # garantir que saldo_atual_signed seja numérico (float) para somas
+        df["saldo_atual_signed"] = pd.to_numeric(
+            df["saldo_atual_signed"], errors="coerce")
+
+        # lista de códigos não-nulos ordenada por comprimento decrescente (filhos primeiro)
+        codes = df["codigo"].fillna("").unique().tolist()
+        codes = [c for c in codes if c]  # remover strings vazias
+        codes_sorted = sorted(codes, key=lambda x: len(x), reverse=True)
+
+        for code in codes_sorted:
+            # máscara para todos os descendentes diretos/indiretos (prefixo "code.")
+            prefix = f"{code}."
+            # somar saldo_atual_signed de todas as linhas cuja 'codigo' começa com prefix
+            mask_desc = df["codigo"].fillna("").str.startswith(prefix)
+            if not mask_desc.any():
+                continue
+            descendant_sum = df.loc[mask_desc,
+                                    "saldo_atual_signed"].dropna().sum()
+            # se a conta 'code' tem saldo_atual_valor faltando, preenchemos com a soma
+            mask_self = (df["codigo"] == code)
+            if mask_self.any():
+                # apenas preencher onde saldo_atual_valor está ausente (NaN)
+                mask_need = mask_self & df["saldo_atual_valor"].isna()
+                if mask_need.any():
+                    df.loc[mask_need, "saldo_atual_signed"] = descendant_sum
+                    df.loc[mask_need, "saldo_atual_valor"] = abs(
+                        descendant_sum) if pd.notna(descendant_sum) else None
+                    df.loc[mask_need,
+                           "saldo_atual_sinal"] = "C" if descendant_sum < 0 else "D"
+
+        # converter mes_ref em periodo datetime (1o dia do mês)
+        try:
+            df["mes_ref_dt"] = pd.to_datetime(
+                df["mes_ref"] + "-01", errors="coerce")
+        except:
+            df["mes_ref_dt"] = pd.NaT
+
+        # ordenar por data / codigo
+        df = df.sort_values(["mes_ref_dt", "codigo"],
+                            na_position="last").reset_index(drop=True)
+
+    return df
