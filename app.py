@@ -1,13 +1,16 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from calcula_resultados import compute_indicators_from_files
+import json
+from calcula_resultados import compute_indicators_from_files, extract_accounts
 
 files = ["balancetes/balancete1.json"]
 result = compute_indicators_from_files(files)
 df_balancete = pd.json_normalize(
     result["per_file"]).drop(columns=["file", "n_leaves"])
 
+
+    
 df_balancete.columns = df_balancete.columns.str.replace("indicators.", "")
 receita_bruta = df_balancete.loc[0, "receita_bruta"]
 receita_liquida = df_balancete.loc[0, "receita_liquida"]

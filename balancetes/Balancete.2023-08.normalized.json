@@ -1,0 +1,632 @@
+{
+  "metadata": {
+    "empresa": "NFEAT LTDA",
+    "cnpj": "47.352.698/0001-78",
+    "emissao": "31/08/2023 15:37:46",
+    "periodo": "01/08/2023 - 31/08/2023",
+    "livro_numero": null,
+    "folha": null
+  },
+  "resumo": {
+    "contas_devedoras": {
+      "valor": 318764.88,
+      "sinal": "D"
+    },
+    "contas_credoras": {
+      "valor": 403719.44,
+      "sinal": "C"
+    },
+    "resultado_do_mes": {
+      "valor": 230060.19,
+      "sinal": "D"
+    },
+    "resultado_do_exercicio": {
+      "valor": 19.67,
+      "sinal": ""
+    }
+  },
+  "balancete": [
+    {
+      "codigo": "1",
+      "descricao": "ATIVO",
+      "classificacao": "D",
+      "saldo_atual": {
+        "valor": 72450.72,
+        "sinal": "D"
+      },
+      "saldo_anterior": {
+        "valor": 80247.62,
+        "sinal": "D"
+      },
+      "debito": {
+        "valor": 421197.01,
+        "sinal": ""
+      },
+      "credito": {
+        "valor": 422524.44,
+        "sinal": ""
+      },
+      "children": [
+        {
+          "codigo": "10,66",
+          "descricao": "ATIVO CIRCULANTE",
+          "children": [
+            {
+              "codigo": "1.057,90",
+              "descricao": "DISPONÍVEL",
+              "saldo_atual": {
+                "valor": 63686.11,
+                "sinal": "D"
+              },
+              "saldo_anterior": {
+                "valor": 74028.75,
+                "sinal": "D"
+              },
+              "debito": {
+                "valor": 386171.5,
+                "sinal": ""
+              },
+              "credito": {
+                "valor": 404872.44,
+                "sinal": ""
+              },
+              "children": [
+                {
+                  "codigo": "105.411,41",
+                  "descricao": "BANCOS CONTA MOVIMENTO",
+                  "saldo_atual": {
+                    "valor": 10.2,
+                    "sinal": "D"
+                  },
+                  "children": [
+                    {
+                      "codigo": "11.048.403.141,09",
+                      "descricao": "BANCO ITAÚ UNIBANCO",
+                      "saldo_atual": {
+                        "valor": 10.01,
+                        "sinal": "D"
+                      },
+                      "saldo_anterior": {
+                        "valor": 9.62,
+                        "sinal": "D"
+                      },
+                      "debito": {
+                        "valor": 269481.59,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 262978.21,
+                        "sinal": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "codigo": "105.621,19",
+                  "descricao": "APLICAÇÕES FINANCEIRAS AUTOMÁTICAS",
+                  "saldo_atual": {
+                    "valor": 65376.34,
+                    "sinal": "D"
+                  },
+                  "saldo_anterior": {
+                    "valor": 74413.74,
+                    "sinal": "D"
+                  },
+                  "debito": {
+                    "valor": 132547.76,
+                    "sinal": ""
+                  },
+                  "credito": {
+                    "valor": 133235.43,
+                    "sinal": ""
+                  },
+                  "children": [
+                    {
+                      "codigo": "11.095.164.182,07",
+                      "descricao": "BANCO ITAÚ UNIBANCO",
+                      "saldo_atual": {
+                        "valor": 68372.59,
+                        "sinal": "D"
+                      },
+                      "saldo_anterior": {
+                        "valor": 78287.22,
+                        "sinal": "D"
+                      },
+                      "debito": {
+                        "valor": 127942.95,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 133449.3,
+                        "sinal": ""
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "codigo": "1.048,14",
+              "descricao": "OUTROS CRÉDITOS",
+              "saldo_atual": {
+                "valor": 6795.35,
+                "sinal": "D"
+              },
+              "saldo_anterior": {
+                "valor": 43.38,
+                "sinal": "D"
+              },
+              "debito": {
+                "valor": 6352.66,
+                "sinal": ""
+              },
+              "credito": {
+                "valor": 0.0,
+                "sinal": ""
+              },
+              "children": [
+                {
+                  "codigo": "113.606,47",
+                  "descricao": "ADIANTAMENTO A FORNECEDORES",
+                  "children": [
+                    {
+                      "codigo": "11.502.782.107,00",
+                      "descricao": "ADIANTAMENTO A FORNECEDORES",
+                      "saldo_anterior": {
+                        "valor": 0.0,
+                        "sinal": ""
+                      },
+                      "saldo_atual": {
+                        "valor": 6947.35,
+                        "sinal": "D"
+                      },
+                      "debito": {
+                        "valor": 6448.32,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 0.0,
+                        "sinal": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "codigo": "112.338,47",
+                  "descricao": "TRIBUTOS E CONTRIBUIÇÕES A RECUPERAR",
+                  "children": [
+                    {
+                      "codigo": "10.810.018.436,16",
+                      "descricao": "IRRF A RECUPERAR",
+                      "saldo_anterior": {
+                        "valor": 43.32,
+                        "sinal": "D"
+                      },
+                      "saldo_atual": {
+                        "valor": 48.83,
+                        "sinal": "D"
+                      },
+                      "debito": {
+                        "valor": 4.05,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 0.0,
+                        "sinal": ""
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "2",
+      "descricao": "PASSIVO",
+      "classificacao": "C",
+      "saldo_atual": {
+        "valor": 325804.93,
+        "sinal": "C"
+      },
+      "saldo_anterior": {
+        "valor": 75455.2,
+        "sinal": "C"
+      },
+      "debito": {
+        "valor": 132845.22,
+        "sinal": ""
+      },
+      "credito": {
+        "valor": 374321.7,
+        "sinal": ""
+      },
+      "children": [
+        {
+          "codigo": "21,95",
+          "descricao": "PASSIVO CIRCULANTE",
+          "children": [
+            {
+              "codigo": "2.050,28",
+              "descricao": "OBRIGAÇÕES TRIBUTÁRIAS",
+              "children": [
+                {
+                  "codigo": "213.151,71",
+                  "descricao": "IMPOSTOS E CONTRIBUIÇÕES A RECOLHER",
+                  "children": [
+                    {
+                      "codigo": "20.808.034.835,91",
+                      "descricao": "1.763,28",
+                      "saldo_atual": {
+                        "valor": 486.98,
+                        "sinal": "C"
+                      },
+                      "saldo_anterior": {
+                        "valor": 1203.88,
+                        "sinal": "C"
+                      },
+                      "debito": {
+                        "valor": 1184.0,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 479.47,
+                        "sinal": ""
+                      }
+                    },
+                    {
+                      "codigo": "20.912.246.467,70",
+                      "descricao": "PIS A RECOLHER",
+                      "saldo_atual": {
+                        "valor": 1.49,
+                        "sinal": "C"
+                      },
+                      "saldo_anterior": {
+                        "valor": 1.36,
+                        "sinal": "C"
+                      },
+                      "debito": {
+                        "valor": 0.0,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 0.13,
+                        "sinal": ""
+                      }
+                    },
+                    {
+                      "codigo": "20.551.023.098,20",
+                      "descricao": "COFINS A RECOLHER",
+                      "saldo_atual": {
+                        "valor": 9.25,
+                        "sinal": "C"
+                      },
+                      "saldo_anterior": {
+                        "valor": 8.89,
+                        "sinal": "C"
+                      },
+                      "debito": {
+                        "valor": 0.0,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 0.82,
+                        "sinal": ""
+                      }
+                    },
+                    {
+                      "codigo": "21.628.499.462,75",
+                      "descricao": "5.851,82",
+                      "saldo_atual": {
+                        "valor": 1508.59,
+                        "sinal": "C"
+                      },
+                      "saldo_anterior": {
+                        "valor": 80.82,
+                        "sinal": "C"
+                      },
+                      "debito": {
+                        "valor": 81.13,
+                        "sinal": ""
+                      },
+                      "credito": {
+                        "valor": 1569.51,
+                        "sinal": ""
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "codigo": "2.191,34",
+              "descricao": "FORNECEDORES",
+              "children": [
+                {
+                  "codigo": "21.696.506.567,66",
+                  "descricao": "FORNECEDORES",
+                  "saldo_atual": {
+                    "valor": 138506.63,
+                    "sinal": "C"
+                  },
+                  "saldo_anterior": {
+                    "valor": 53017.15,
+                    "sinal": "C"
+                  },
+                  "debito": {
+                    "valor": 140076.8,
+                    "sinal": ""
+                  },
+                  "credito": {
+                    "valor": 227961.16,
+                    "sinal": ""
+                  }
+                }
+              ]
+            },
+            {
+              "codigo": "2.173,77",
+              "descricao": "EMPRÉSTIMOS E FINANCIAMENTOS",
+              "children": [
+                {
+                  "codigo": "21.697.017.519,15",
+                  "descricao": "EMPRÉSTIMOS SÓCIOS",
+                  "saldo_atual": {
+                    "valor": 43080.33,
+                    "sinal": "C"
+                  },
+                  "saldo_anterior": {
+                    "valor": 41773.76,
+                    "sinal": "C"
+                  },
+                  "debito": {
+                    "valor": 0.0,
+                    "sinal": ""
+                  },
+                  "credito": {
+                    "valor": 0.0,
+                    "sinal": ""
+                  }
+                }
+              ]
+            },
+            {
+              "codigo": "2.123,62",
+              "descricao": "OUTRAS OBRIGAÇÕES",
+              "children": [
+                {
+                  "codigo": "21.620.088.881,21",
+                  "descricao": "ALUGUEL A PAGAR",
+                  "saldo_atual": {
+                    "valor": 41245.93,
+                    "sinal": "C"
+                  },
+                  "saldo_anterior": {
+                    "valor": 28501.87,
+                    "sinal": "C"
+                  },
+                  "debito": {
+                    "valor": 0.0,
+                    "sinal": ""
+                  },
+                  "credito": {
+                    "valor": 10011.71,
+                    "sinal": ""
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "23,59",
+          "descricao": "PATRIMÔNIO LÍQUIDO",
+          "children": [
+            {
+              "codigo": "23.157.316.141,73",
+              "descricao": "CAPITAL SOCIAL SUBSCRITO",
+              "saldo_atual": {
+                "valor": 1008.84,
+                "sinal": "C"
+              },
+              "saldo_anterior": {
+                "valor": 1046.48,
+                "sinal": "C"
+              }
+            },
+            {
+              "codigo": "23.210.552.739,30",
+              "descricao": "AFAC - ADIANTAMENTO FUTURO AUMENTO DE CAPITAL",
+              "saldo_atual": {
+                "valor": 547218.05,
+                "sinal": "C"
+              },
+              "saldo_anterior": {
+                "valor": 440820.58,
+                "sinal": "C"
+              }
+            },
+            {
+              "codigo": "23.735.767.934,32",
+              "descricao": "(-) PREJUÍZOS ACUMULADOS",
+              "saldo_atual": {
+                "valor": 481882.45,
+                "sinal": "D"
+              },
+              "saldo_anterior": {
+                "valor": 468788.95,
+                "sinal": "D"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "codigo": "3",
+      "descricao": "RECEITAS",
+      "saldo_atual": {
+        "valor": 18.97,
+        "sinal": "C"
+      },
+      "children": [
+        {
+          "codigo": "30.901.838.659,86",
+          "descricao": "RECEITA SOBRE APLICAÇÕES FINANCEIRAS",
+          "saldo_atual": {
+            "valor": 19.31,
+            "sinal": "C"
+          },
+          "debito": {
+            "valor": 0.0,
+            "sinal": ""
+          },
+          "credito": {
+            "valor": 20.72,
+            "sinal": ""
+          }
+        },
+        {
+          "codigo": "31.345.410.485,31",
+          "descricao": "(-) PIS SOBRE RECEITAS FINANCEIRAS",
+          "saldo_atual": {
+            "valor": 0.13,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "30.615.929.667,39",
+          "descricao": "(-) COFINS SOBRE RECEITAS FINANCEIRAS",
+          "saldo_atual": {
+            "valor": 0.79,
+            "sinal": "D"
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "4",
+      "descricao": "CUSTOS E DESPESAS",
+      "saldo_atual": {
+        "valor": 247473.54,
+        "sinal": "D"
+      },
+      "children": [
+        {
+          "codigo": "39.934.592.694,11",
+          "descricao": "SERVIÇOS PRESTADOS DE PROGRAMAÇÃO E TI",
+          "saldo_atual": {
+            "valor": 3924.74,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.232.403.907,94",
+          "descricao": "ASSESSORIA ADMINISTRATIVA",
+          "saldo_atual": {
+            "valor": 17161.55,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.947.492.004,65",
+          "descricao": "SUPORTE TÉCNICO",
+          "saldo_atual": {
+            "valor": 31425.94,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.837.621.620,62",
+          "descricao": "ALUGUEL",
+          "saldo_atual": {
+            "valor": 9755.73,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "42.415.398.270,21",
+          "descricao": "CONDOMINIO",
+          "saldo_atual": {
+            "valor": 3502.7,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "43.484.035.516,20",
+          "descricao": "ENERGIA ELÉTRICA",
+          "saldo_atual": {
+            "valor": 319.05,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "42.622.384.946,35",
+          "descricao": "PROCESSAMENTO E ARMAZENAGEM DE DADOS",
+          "saldo_atual": {
+            "valor": 710.68,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.099.207.364,90",
+          "descricao": "CURSOS E TREINAMENTOS",
+          "saldo_atual": {
+            "valor": 19280.59,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "42.555.381.587,11",
+          "descricao": "ASSESSORIA CONTÁBIL",
+          "saldo_atual": {
+            "valor": 1793.31,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.635.892.808,07",
+          "descricao": "ASSESSORIA JURÍDICA",
+          "saldo_atual": {
+            "valor": 1570.14,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "40.526.138.675,96",
+          "descricao": "SERVIÇOS DE CONSULTORIA",
+          "saldo_atual": {
+            "valor": 70979.67,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.034.016.678,02",
+          "descricao": "CURSOS E TREINAMENTOS",
+          "saldo_atual": {
+            "valor": 18826.24,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "41.618.025.721,86",
+          "descricao": "IOF",
+          "saldo_atual": {
+            "valor": 529.91,
+            "sinal": "D"
+          }
+        },
+        {
+          "codigo": "42.815.628.226,48",
+          "descricao": "DESPESAS BANCÁRIAS",
+          "saldo_atual": {
+            "valor": 81.31,
+            "sinal": "D"
+          }
+        }
+      ]
+    }
+  ]
+}

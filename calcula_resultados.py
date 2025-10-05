@@ -14,8 +14,8 @@ Atenção: o script usa heurísticas por palavras-chave. Ajuste `keywords` confo
 """
 import json
 import os
-from typing import List, Dict, Any
-
+from typing import List, Dict, Any 
+import pandas as pd
 # --- heurísticas simples (ajuste se necessário) ---
 REVENUE_KEYWORDS = ["receita", "receitas", "venda",
                     "vendas", "serviço", "serviços", "faturamento"]
@@ -204,3 +204,24 @@ if __name__ == "__main__":
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)
     print("Saved:", args.out)
+
+
+def extract_accounts(node, hierarchy=None):
+    if hierarchy is None:
+        hierarchy = []
+
+    current_hierarchy = hierarchy + [node["descricao"]]
+    rows = []
+
+    if "children" in node:
+        for child in node["children"]:
+            rows.extend(extract_accounts(child, current_hierarchy))
+    else:
+        row = {f"nivel_{i+1}": level for i,
+               level in enumerate(current_hierarchy)}
+        row["conta"] = node["conta"]
+        row["descricao"] = node["descricao"]
+        row["saldo_atual"] = node.get("saldo_atual", 0.0)
+        rows.append(row)
+
+    return rows
