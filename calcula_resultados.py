@@ -434,3 +434,44 @@ def load_balancetes_to_df(folder: str = "balancetes", pattern: str = "*.json"):
                             na_position="last").reset_index(drop=True)
 
     return df
+
+# --------------------------------------------------------------------------------------
+# Load the JSON data from the file
+with open("balancetes/balancete1.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+# Recursive function to traverse the hierarchical structure and collect data
+
+
+def extract_accounts(node, hierarchy=None):
+    if hierarchy is None:
+        hierarchy = []
+
+    current_hierarchy = hierarchy + [node["descricao"]]
+    rows = []
+
+    if "children" in node:
+        for child in node["children"]:
+            rows.extend(extract_accounts(child, current_hierarchy))
+    else:
+        row = {f"nivel_{i+1}": level for i,
+               level in enumerate(current_hierarchy)}
+        row["conta"] = node["conta"]
+        row["descricao"] = node["descricao"]
+        row["saldo_atual"] = node.get("saldo_atual", 0.0)
+        rows.append(row)
+
+    return rows
+
+
+# Extract all top-level sections (ativo, passivo, receitas, etc.)
+all_rows = []
+for section in data.values():
+    if isinstance(section, dict) and "descricao" in section:
+        all_rows.extend(extract_accounts(section))
+
+# Create a DataFrame
+df = pd.DataFrame(all_rows)
+
+# Display the resulting DataFrame
+df

@@ -4,7 +4,7 @@
     "periodo": "01/09/2023 - 30/09/2023",
     "emissao": "30/09/2023 15:37:46"
   },
-  "balancete": [
+  "ativo": 
     {
       "conta": "01",
       "descricao": "ATIVO",
@@ -138,8 +138,7 @@
           ]
         }
       ]
-    }
-  ],
+    },
   "passivo": {
     "conta": "02",
     "descricao": "PASSIVO",
