@@ -6,7 +6,7 @@
         "periodo": "01/01/2023 - 30/01/2023",
         "emissao": "30/01/2023 15:37:46"
       },
-      "balancete": [
+      "ativo": 
         {
           "conta": "01",
           "descricao": "ATIVO",
@@ -133,7 +133,7 @@
             ]
           }
         
-      ],}
+      },
     "2023-02": {
       "metadata": {
         "razao_social": "INDUSTRIAL NORDESTE LTDA",
