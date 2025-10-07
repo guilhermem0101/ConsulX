@@ -40,6 +40,50 @@ for filename in os.listdir(folder_path):
 # Cria o DataFrame consolidado
 df_hist = pd.DataFrame(all_rows)
 
+# ======================== BIGNUMBERS ========================
+
+receita_bruta = df_hist[(df_hist["nivel_1"] == "RECEITAS") & (
+    df_hist["nivel_2"] == "Serviços Prestados a Prazo")]
+
+# Impostos sobre receita (deduções) = "Simples Nacional sobre vendas e serviços"
+impostos_sobre_receita = df_hist[(df_hist["nivel_1"] == "RECEITAS") & (
+    df_hist["nivel_2"] == "Simples Nacional sobre vendas e serviços")]
+
+# Custos e Despesas = todas as linhas em "CUSTOS E DESPESAS"
+custos_despesas = df_hist[df_hist["nivel_1"] == "CUSTOS E DESPESAS"]
+
+# Caixa e equivalentes = "ATIVO CIRCULANTE" e "DISPONIBILIDADES"
+caixa = df_hist[(df_hist["nivel_2"] == "ATIVO CIRCULANTE") &
+           (df_hist["nivel_3"] == "DISPONIBILIDADES")]
+
+# Agregar valores por mês
+receita_bruta_mensal = receita_bruta.groupby("mes")["saldo_atual"].sum()
+impostos_mensal = impostos_sobre_receita.groupby("mes")["saldo_atual"].sum()
+custos_mensal = custos_despesas.groupby("mes")["saldo_atual"].sum()
+caixa_mensal = caixa.groupby("mes")["saldo_atual"].sum()
+
+# Calcular os indicadores
+df_indices = pd.DataFrame({
+    "Receita Bruta": receita_bruta_mensal,
+    "(-) Impostos sobre Receita": impostos_mensal,
+    "Custo Total": custos_mensal,
+    "Disponibilidade de Caixa": caixa_mensal
+})
+
+# Receita Líquida
+df_indices["Receita Líquida"] = df_indices["Receita Bruta"] - \
+    df_indices["(-) Impostos sobre Receita"]
+
+# Lucro Bruto = Receita Líquida - Custo Total
+df_indices["Lucro Bruto"] = df_indices["Receita Líquida"] - \
+    df_indices["Custo Total"]
+
+# Lucro Líquido (neste modelo simplificado consideramos que todos os custos/despesas já estão no grupo "CUSTOS E DESPESAS")
+df_indices["Lucro Líquido"] = df_indices["Lucro Bruto"]
+
+
+# ======================== INDICADDORES ========================
+
 df_agrupado = df_hist.groupby(['nivel_2', 'mes'], as_index=False)[
     'saldo_atual'].sum()
 filtro = df_agrupado.loc[
@@ -79,7 +123,7 @@ tabela_pivot['Endividamento'] = tabela_pivot['Passivo_Total'] / \
 tabela_pivot['Endividamento_Geral'] = (
     tabela_pivot['Passivo_Total']) / tabela_pivot['Ativo_Total']
 
-# ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
+# ======================== INIT ========================
 
 df_balancete.columns = df_balancete.columns.str.replace("indicators.", "")
 receita_bruta = df_balancete.loc[0, "receita_bruta"]
@@ -181,6 +225,56 @@ with abas[1]:  # Aba "Contábil"
     # Último gráfico centralizado
     st.plotly_chart(plot_indicator_bar(df_plot, "Endividamento_Geral",
                     "Endividamento Geral"), use_container_width=True)
+
+
+    # ======================
+    # GRÁFICOS DE INDICADORES TEMPORAIS (BARRAS INDIVIDUAIS)
+    # ======================
+    st.subheader("📊 Bignumbers ao Longo do Tempo")
+
+    # Converter índice para coluna e ordenar
+    df_plot_big = df_indices.reset_index().sort_values("mes")
+    df_plot_big["mes"] = pd.to_datetime(df_plot_big["mes"], format="%Y-%m")
+
+    # Função para criar gráfico de barras por indicador
+
+    def plot_indicator_bar(df, indicador, titulo):
+        fig = px.bar(
+            df,
+            x="mes",
+            y=indicador,
+            text_auto=".2f",
+            labels={"mes": "Mês", indicador: "Índice"},
+            title=titulo
+        )
+        fig.update_traces(marker_line_width=0.5)
+        fig.update_layout(
+            xaxis_title="Período",
+            yaxis_title="Valor",
+            showlegend=False,
+            title_x=0.3
+        )
+        return fig
+
+    # Criar duas colunas (2x2 + 1 embaixo)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.plotly_chart(plot_indicator_bar(df_plot_big, "Receita Bruta",
+                        "Receita Bruta"), use_container_width=True)
+        st.plotly_chart(plot_indicator_bar(df_plot_big, "Custo Total",
+                        "Custo Total"), use_container_width=True)
+
+    with col2:
+        st.plotly_chart(plot_indicator_bar(df_plot_big, "Receita Líquida",
+                        "Receita Líquida"), use_container_width=True)
+        st.plotly_chart(plot_indicator_bar(df_plot_big, "Lucro Líquido",
+                        "Lucro Líquido"), use_container_width=True)
+
+    # Último gráfico centralizado
+    st.plotly_chart(plot_indicator_bar(df_plot_big, "Disponibilidade de Caixa",
+                    "Disponibilidade de Caixa"), use_container_width=True)
+
 
 with abas[0]:  # Aba "Gerencial"
     st.subheader("📑 Painel Gerencial")
