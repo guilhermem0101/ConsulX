@@ -195,7 +195,8 @@ with abas[1]:  # Aba "Contábil"
             y=indicador,
             text_auto=".2f",
             labels={"mes": "Mês", indicador: "Índice"},
-            title=titulo
+            title=titulo,
+            color_discrete_sequence=["#FFFFFF"]
         )
         fig.update_traces(marker_line_width=0.5)
         fig.update_layout(
@@ -236,25 +237,7 @@ with abas[1]:  # Aba "Contábil"
     df_plot_big = df_indices.reset_index().sort_values("mes")
     df_plot_big["mes"] = pd.to_datetime(df_plot_big["mes"], format="%Y-%m")
 
-    # Função para criar gráfico de barras por indicador
-
-    def plot_indicator_bar(df, indicador, titulo):
-        fig = px.bar(
-            df,
-            x="mes",
-            y=indicador,
-            text_auto=".2f",
-            labels={"mes": "Mês", indicador: "Índice"},
-            title=titulo
-        )
-        fig.update_traces(marker_line_width=0.5)
-        fig.update_layout(
-            xaxis_title="Período",
-            yaxis_title="Valor",
-            showlegend=False,
-            title_x=0.3
-        )
-        return fig
+    
 
     # Criar duas colunas (2x2 + 1 embaixo)
     col1, col2 = st.columns(2)
