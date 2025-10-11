@@ -134,13 +134,13 @@ indicadores = [
     {
         "titulo": "Endividamento Geral",
         "descricao": "Grau em que os Ativos Totais são financiados por recursos de terceiros.",
-        "memoria": "Passivo Circulante + Exigível a Longo Prazo / Ativo Total",
+        "memoria": "Passivo circulante / Passivo circulante + Exigível Longo Prazo",
         "valor": round(indices_max['Endividamento_Geral'].values[0], 2)
     },
     {
         "titulo": "Endividamento",
-        "descricao": "Quanto a empresa possui de imediato no caixa, frente às obrigações exigíveis.",
-        "memoria": "Disponível / Passivo Circulante",
+        "descricao": "Relacionamento entre a posição do Patrimônio Líquido em relação aos Empréstimos.",
+        "memoria": "Passivo circulante + Exigível a Longo Prazo / Ativo Total",
         "valor": round(indices_max['Endividamento'].values[0], 2)
     },
     {
@@ -336,9 +336,9 @@ with abas[0]:  # Aba "Gerencial"
                 box-shadow: 0 0 10px rgba(0,0,0,0.05);
                 height: 250px;
             ">
-                <h4 style="margin-bottom: 5px;">{indicador['titulo']}</h4>
-                <p style="font-size: 13px; color: #555;">{indicador['descricao']}</p>
-                <p style="font-size: 12px; color: #777;"><b>Memória de Cálculo:</b> {indicador['memoria']}</p>
+                <h4 style="margin-bottom: 20px;">{indicador['titulo']}</h4>
+                <p style="font-size: 18px; color: #555;">{indicador['descricao']}</p>
+                <p style="font-size: 15px; color: #777;"><b>Memória de Cálculo:</b> {indicador['memoria']}</p>
                 <h2 style="text-align:center; color:#000;">{indicador['valor']}</h2>
             </div>
             """, unsafe_allow_html=True)
