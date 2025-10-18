@@ -3,4 +3,4 @@ git pull origin main -- baixa as atualizações do repositório remoto.
 git stash pop --reaplica suas mudanças sobre o novo código atualizado.
 git add . -- adiciona tudo que foi alterado
 git commit -m "minhas alterações locais" --comita as alterações do repositório
-git pull origin main -- 
+git push origin main -- sobe as mudanças no repositório
