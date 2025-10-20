@@ -134,3 +134,5 @@ def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:
         columns={"ATIVO CIRCULANTE": "Ativo_Circulante", "ATIVO NÃO CIRCULANTE": "Ativo_Nao_Circulante", "PASSIVO CIRCULANTE": "Passivo_Circulante", "PASSIVO NÃO CIRCULANTE": "Passivo_Nao_Circulante"})
 
     return tabela_pivot
+
+

@@ -37,6 +37,52 @@ for filename in os.listdir(folder_path):
 # Cria o DataFrame consolidado
 df_hist = pd.DataFrame(all_rows)
 
+# ======================
+# FUNÇÃO DE FILTRO DE ANO
+# ======================
+def filtro_ano(df_plot):
+    """
+    Cria um seletor de ano no Streamlit e retorna o DataFrame filtrado.
+    O campo 'mes' deve estar no formato 'YYYY-MM'.
+    """
+    # Extrair anos únicos ordenados
+    anos = sorted({str(m)[:4] for m in df_plot["mes"]})
+
+    # Caixa visual estilizada
+    st.markdown("""
+    <style>
+        .year-filter-box {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 12px 20px;
+            margin-bottom: 25px;
+        }
+        .year-filter-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 8px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="year-filter-box">', unsafe_allow_html=True)
+
+    # Filtro de ano (pode selecionar um ou vários)
+    ano_selecionado = st.multiselect(
+        "Selecione o(s) ano(s):",
+        options=anos,
+        default=anos[-1:],  # último ano por padrão
+        label_visibility="collapsed"
+    )
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Filtra o DataFrame conforme o(s) ano(s) escolhidos
+    df_filtrado = df_plot[df_plot["mes"].str[:4].isin(ano_selecionado)]
+
+    return df_filtrado, ano_selecionado    
 
 
 
@@ -105,132 +151,349 @@ st.set_page_config(page_title="Dashboard Contábil", layout="wide")
 # SIDEBAR (MENU LATERAL)
 # ======================
 with st.sidebar:
-    st.image("https://i.imgur.com/7KKstrd.jpeg", width=180)
-    st.title("CONSULX")
-    st.markdown("### 📊 Dashboard")
-    st.markdown("### 👥 Clientes")
-    st.markdown("### ⚙️ Configuração")
+    st.markdown("""
+    <style>
+        /* Sidebar geral */
+        .sidebar .sidebar-content {
+            background-color: #f5f5f5;  /* fundo cinza claro */
+            padding-top: 20px;
+        }
+        /* Menu itens */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .menu-item:hover {
+            background-color: #e0e0e0;
+        }
+        /* Ícone do menu */
+        .menu-item img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+        /* Item ativo */
+        .menu-item.active {
+            background-color: #595959;
+            color: white;
+        }
+        .menu-item.active img {
+            filter: brightness(0) invert(1);
+        }
+    </style>
+    
+    
+    <div class="menu-item active">
+        <img src="https://img.icons8.com/?size=100&id=9zcV0gKAozhn&format=png&color=000000"/>
+        Dashboard
+    </div>
+    <div class="menu-item">
+        <img src="https://img.icons8.com/?size=100&id=11220&format=png&color=000000"/>
+        Clientes
+    </div>
+    <div class="menu-item">
+        <img src="https://img.icons8.com/?size=100&id=2969&format=png&color=000000"/>
+        Configuração
+    </div>
+    """, unsafe_allow_html=True)
 
 # ======================
-# TOPO COM ABAS
+# MENU DE ABAS
 # ======================
+st.markdown("""
+<style>
+.stTabs [data-baseweb="tab-list"] {
+    border-bottom: 2px solid #ddd;
+}
+.stTabs [data-baseweb="tab"] {
+    color: #666;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    padding: 10px 20px;
+}
+.stTabs [aria-selected="true"] {
+    color: #000000;
+    border-bottom: 2px solid #000000;
+}
+</style>
+""", unsafe_allow_html=True)
 abas = st.tabs(["Gerencial", "Contábil", "Projeção", "Analítico"])
 
 
+
+
 with abas[0]:  # Aba "Gerencial"
-    st.subheader("📑 Painel Gerencial")
+    st.markdown("""
+    <style>
+    .metric-card {
+        background-color: #f8f9fa;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        height: 250px; /* 🔹 altura fixa para todos os cards */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-bottom: 25px; /* espaçamento entre linhas */
+        overflow: hidden; /* evita quebra visual se texto for grande */
+    }
+    .metric-card h4 {
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #222;
+    }
+    .metric-card p {
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #555;
+        text-align: justify;
+    }
+    .metric-card h2 {
+        text-align: center;
+        color: #000;
+        margin-top: auto;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # indicadores_historicos
-    # indicadores_foto
-
-    # Layout: 3 cards por linha
     cols_per_row = 3
     for i in range(0, len(indicadores), cols_per_row):
         cols = st.columns(cols_per_row)
         for col, indicador in zip(cols, indicadores[i:i+cols_per_row]):
             col.markdown(f"""
-            <div style="
-                background-color: #f8f9fa;
-                padding: 25px;
-                border-radius: 15px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.05);
-                height: 250px;
-            ">
-                <h4 style="margin-bottom: 20px;">{indicador['titulo']}</h4>
-                <p style="font-size: 18px; color: #555;">{indicador['descricao']}</p>
-                <p style="font-size: 15px; color: #777;"><b>Memória de Cálculo:</b> {indicador['memoria']}</p>
-                <h2 style="text-align:center; color:#000;">{indicador['valor']}</h2>
+            <div class="metric-card">
+                <div>
+                    <h4>{indicador['titulo']}</h4>
+                    <p>{indicador['descricao']}</p>
+                    <p style="font-size: 14px; color: #777;">
+                        <b>Memória de Cálculo:</b> {indicador['memoria']}
+                    </p>
+                </div>
+                <h2>{indicador['valor']}</h2>
             </div>
             """, unsafe_allow_html=True)
 
 
+
+
 with abas[1]:  # Aba "Contábil"
-    st.subheader("📑 Painel Contábil")
+    st.markdown("""
+        <style>
+            /* Container principal */
+            .main {
+                padding: 0rem 1rem 1rem 1rem !important;
+            }
+
+            /* Remover excesso de padding entre colunas */
+            div[data-testid="column"] {
+                padding-left: 0.4rem !important;
+                padding-right: 0.4rem !important;
+            }
+
+            /* Painel contábil */
+            .bignumber-card {
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+                border: 1px solid #f1f1f1;
+                padding: 18px 10px;
+                text-align: center;
+                transition: all 0.2s ease-in-out;
+                height: 90px;
+            }
+            .bignumber-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Título da métrica */
+            .metric-title {
+                color: #3c3c3c;
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+
+            /* Valor da métrica */
+            .metric-value {
+                color: #3c3c3c;
+                font-size: 18px;
+                font-weight: 700;
+                margin-top: 4px;
+            }
+
+            /* Linha separadora sutil entre seções */
+            hr {
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+                border: none;
+                border-top: 1px solid #eee;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
     # ======================
     # MÉTRICAS SUPERIORES
     # ======================
+
     col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.metric("Receita Bruta", f"R$ {receita_bruta:,.2f}".replace(
-            ",", "X").replace(".", ",").replace("X", "."))
-    with col2:
-        st.metric("Receita Líquida", f"R$ {receita_liquida:,.2f}".replace(
-            ",", "X").replace(".", ",").replace("X", "."))
-    with col3:
-        st.metric("Lucro Bruto", f"R$ {lucro_bruito:,.2f}".replace(
-            ",", "X").replace(".", ",").replace("X", "."))
-    with col4:
-        st.metric("Lucro Líquido", f"R$ {lucro_liquido:,.2f}".replace(
-            ",", "X").replace(".", ",").replace("X", "."))
-    with col5:
-        st.metric("Disponibilidade de Caixa", f"R$ {disponibilidade_caixa:,.2f}".replace(
-            ",", "X").replace(".", ",").replace("X", "."))
+    metrics = [
+        ("Receita Bruta", receita_bruta),
+        ("Receita Líquida", receita_liquida),
+        ("Lucro Bruto", lucro_bruito),
+        ("Lucro Líquido", lucro_liquido),
+        ("Disponibilidade de Caixa", disponibilidade_caixa),
+    ]
 
-    st.markdown("---")
+    for col, (titulo, valor) in zip([col1, col2, col3, col4, col5], metrics):
+        col.markdown(f"""
+        <div class="bignumber-card" style="padding:10px; background-color:#f8f8f8; border-radius:8px; text-align:center;">
+            <div class="metric-title" style="font-weight:bold; color:#333;">{titulo}</div>
+            <div class="metric-value" style="font-size:20px; color:#595959;">R$ {valor:,.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+
+
+
+
 
     # ======================
-    # GRÁFICOS DE INDICADORES TEMPORAIS (BARRAS INDIVIDUAIS)
+    # GRÁFICOS DE INDICADORES TEMPORAIS
     # ======================
-    st.subheader("📊 Indicadores de Liquidez e Endividamento ao Longo do Tempo")
 
     # Converter índice para coluna e ordenar
     df_plot = indicadores_historicos.reset_index().sort_values("mes")
-    df_plot["mes"] = pd.to_datetime(df_plot["mes"], format="%Y-%m")
+    df_plot["mes"] = df_plot["mes"].astype(str)
+    df_plot, anos_escolhidos = filtro_ano(df_plot)
+
+    df_plot["Banco"] = df_plot["Disponibilidade_Caixa"] * 0.5
+    df_plot["Investimento"] = df_plot["Disponibilidade_Caixa"] * 0.3
+    df_plot["Caixa"] = df_plot["Disponibilidade_Caixa"] * 0.2
 
     # Função para criar gráfico de barras por indicador
 
-
-    def plot_indicator_bar(df, indicador, titulo):
-        fig = px.bar(
-            df,
-            x="mes",
-            y=indicador,
-            text_auto=".2f",
-            labels={"mes": "Mês", indicador: "Índice"},
-            title=titulo,
-            color_discrete_sequence=["#3E4DD8"]
-        )
-        fig.update_traces(marker_line_width=0.5)
-        fig.update_layout(
-            xaxis_title="Período",
-            yaxis_title="Valor",
-            showlegend=False,
-            title_x=0.3
-        )
-        return fig
-
-
-   
-
-    # Primeira linha
     col1, col2 = st.columns(2)
+
+    # 1️⃣ Receita Líquida / Receita Bruta
     with col1:
-        st.plotly_chart(plot_indicator_bar(df_plot, "Liquidez_Corrente",
-                        "Liquidez Corrente"), use_container_width=True)
+        fig_receita = px.bar(
+            df_plot,
+            x="mes",
+            y=["Receita_Bruta", "Receita_Líquida"],
+            barmode="group",
+            title="RECEITA LÍQUIDA / RECEITA BRUTA",
+            labels={"value": "Valor", "variable": "Indicador", "mes": "Mês"},
+            color_discrete_sequence=["#595959", "#B0B0B0"]
+        )
+        fig_receita.update_layout(
+            title_x=0.3,
+            plot_bgcolor="#fff",
+            legend=dict(
+                orientation="h",         # horizontal
+                yanchor="top",
+                y=-0.2,                  # move para baixo do gráfico
+                xanchor="center",
+                x=0.5
+            )
+        )
+        st.plotly_chart(fig_receita, use_container_width=True)
+
+    # 2️⃣ Disponibilidade de Caixa
     with col2:
-        st.plotly_chart(plot_indicator_bar(df_plot, "Solvencia_Geral",
-                        "Solvência Geral"), use_container_width=True)
+        df_caixa_melt = df_plot.melt(
+            id_vars=["mes"],
+            value_vars=["Banco", "Investimento", "Caixa"],
+            var_name="Composição",
+            value_name="Valor"
+        )
+        fig_caixa = px.bar(
+            df_caixa_melt,
+            x="mes",
+            y="Valor",
+            color="Composição",
+            barmode="stack",
+            title="DISPONIBILIDADE DE CAIXA",
+            labels={"mes": "Mês", "Valor": "Valor", "Composição": "Composição"},
+            color_discrete_sequence=["#F1F1F1", "#B0B0B0", "#595959"]
+        )
+        fig_caixa.update_layout(
+            title_x=0.3,
+            plot_bgcolor="#fff",
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.2,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        st.plotly_chart(fig_caixa, use_container_width=True)
 
-    # Segunda linha
+    # Segunda linha de gráficos
     col3, col4 = st.columns(2)
-    with col3:
-        st.plotly_chart(plot_indicator_bar(df_plot, "Liquidez_Geral",
-                        "Liquidez Geral"), use_container_width=True)
-    with col4:
-        st.plotly_chart(plot_indicator_bar(df_plot, "Liquidez_Imediata",
-                        "Liquidez Imediata"), use_container_width=True)
 
-    # Terceira linha
-    col5, col6 = st.columns(2)
-    with col5:
-        st.plotly_chart(plot_indicator_bar(df_plot, "Endividamento_Geral",
-                        "Endividamento Geral"), use_container_width=True)
-    with col6:
-        st.plotly_chart(plot_indicator_bar(df_plot, "Endividamento",
-                        "Endividamento"), use_container_width=True)
+    # 3️⃣ Custo / Receita Líquida
+    with col3:
+        fig_custo = px.line(
+            df_plot,
+            x="mes",
+            y="Custo_Total",
+            title="CUSTO / RECEITA LÍQUIDA",
+            labels={"mes": "Mês", "Custo Total": "Valor"}
+        )
+        fig_custo.update_traces(line=dict(color="#0052CC", width=3), name="Custo Total")
+        fig_custo.add_scatter(
+            x=df_plot["mes"],
+            y=df_plot["Receita_Líquida"],
+            mode="lines",
+            name="Receita Líquida",
+            line=dict(color="#DAA520", width=3)
+        )
+        fig_custo.update_layout(
+            title_x=0.3,
+            plot_bgcolor="#fff",
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.2,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        st.plotly_chart(fig_custo, use_container_width=True)
+
+    # 4️⃣ Receita Líquida (barra simples)
+    with col4:
+        fig_liquida = px.bar(
+            df_plot,
+            x="mes",
+            y="Receita_Líquida",
+            title="RECEITA LÍQUIDA",
+            text_auto=".2s",
+            color_discrete_sequence=["#595959"]
+        )
+        fig_liquida.update_layout(
+            title_x=0.3,
+            plot_bgcolor="#fff",
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.25,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        st.plotly_chart(fig_liquida, use_container_width=True)
+
 
     
-with abas[3]:  # Aba "Gerencial"
-    st.subheader("📑 Analítico")
+with abas[3]:  # Aba "Analítico"
+    st.subheader("Métricas do Balancete")
     indicadores_historicos
