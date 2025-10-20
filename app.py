@@ -147,6 +147,7 @@ disponibilidade_caixa = indicadores_foto['Disponibilidade_Caixa'].values[0]
 st.set_page_config(page_title="Dashboard Contábil", layout="wide")
 
 
+
 # ======================
 # SIDEBAR (MENU LATERAL)
 # ======================
@@ -369,22 +370,25 @@ with abas[0]:  # Aba "Contábil"
 
     col1, col2, col3, col4, col5 = st.columns(5)
     metrics = [
-        ("Receita Bruta", receita_bruta),
-        ("Receita Líquida", receita_liquida),
-        ("Lucro Bruto", lucro_bruito),
-        ("Lucro Líquido", lucro_liquido),
-        ("Disponibilidade de Caixa", disponibilidade_caixa),
+        ("Receita Bruta", receita_bruta, "Total de receitas antes de qualquer dedução ou custo"),
+        ("Receita Líquida", receita_liquida, "Receita após deduções de impostos, devoluções e descontos"),
+        ("Lucro Bruto", lucro_bruito, "Receita líquida menos custos diretos de produção"),
+        ("Lucro Líquido", lucro_liquido, "Lucro após todas as despesas, impostos e custos"),
+        ("Disponibilidade de Caixa", disponibilidade_caixa, "Valor disponível em caixa e equivalentes de caixa")
     ]
 
-    for col, (titulo, valor) in zip([col1, col2, col3, col4, col5], metrics):
+    icon_url = "https://img.icons8.com/?size=100&id=77&format=png&color=000000"
+
+    for col, (titulo, valor, descricao) in zip([col1, col2, col3, col4, col5], metrics):
         col.markdown(f"""
         <div class="bignumber-card" style="padding:10px; background-color:#f8f8f8; border-radius:8px; text-align:center;">
-            <div class="metric-title" style="font-weight:bold; color:#333;">{titulo}</div>
+            <div class="metric-title" style="font-weight:bold; color:#333; display:flex; align-items:center; justify-content:center; gap:4px;">
+                {titulo} 
+                <img src="{icon_url}" title="{descricao}" style="width:16px; height:16px; cursor:help;">
+            </div>
             <div class="metric-value" style="font-size:20px; color:#595959;">R$ {valor:,.2f}</div>
         </div>
         """, unsafe_allow_html=True)
-    
-
 
 
 
@@ -414,21 +418,51 @@ with abas[0]:  # Aba "Contábil"
             y=["Receita_Bruta", "Receita_Líquida"],
             barmode="group",
             title="RECEITA LÍQUIDA / RECEITA BRUTA",
-            labels={"value": "Valor", "variable": "Indicador", "mes": "Mês"},
-            color_discrete_sequence=["#595959", "#B0B0B0"]
+            labels={
+                "mes": "Mês",
+                "value": "Valor (R$)",
+                "variable": "Indicador"
+            },
+            color_discrete_map={
+                "Receita_Bruta": "#B0B0B0",   # Cinza médio
+                "Receita_Líquida": "#595959"  # Cinza escuro
+            },
+            text_auto=".2s"
         )
+
+        fig_receita.update_traces(
+            textposition="outside",
+            marker_line_width=0.8,
+            marker_line_color="#E0E0E0"
+        )
+
         fig_receita.update_layout(
-            title_x=0.3,
-            plot_bgcolor="#fff",
+            title={
+                "text": "RECEITA LÍQUIDA / RECEITA BRUTA",
+                "x": 0.5,          # Centraliza o título
+                "xanchor": "center",
+                "yanchor": "top"
+                
+            },
+            plot_bgcolor="#ffffff",
+            paper_bgcolor="#ffffff",
+            xaxis_title="Mês",
+            yaxis_title="Valor (R$)",
+            bargap=0.25,
+            font=dict(color="#333", size=13),
             legend=dict(
-                orientation="h",         # horizontal
+                orientation="h",
                 yanchor="top",
-                y=-0.2,                  # move para baixo do gráfico
+                y=-0.25,
                 xanchor="center",
-                x=0.5
-            )
+                x=0.5,
+                title_text=""
+            ),
+            hovermode="x unified"
         )
+
         st.plotly_chart(fig_receita, use_container_width=True)
+
 
     # 2️⃣ Disponibilidade de Caixa
     with col2:
@@ -438,6 +472,7 @@ with abas[0]:  # Aba "Contábil"
             var_name="Composição",
             value_name="Valor"
         )
+
         fig_caixa = px.bar(
             df_caixa_melt,
             x="mes",
@@ -445,54 +480,105 @@ with abas[0]:  # Aba "Contábil"
             color="Composição",
             barmode="stack",
             title="DISPONIBILIDADE DE CAIXA",
-            labels={"mes": "Mês", "Valor": "Valor", "Composição": "Composição"},
-            color_discrete_sequence=["#F1F1F1", "#B0B0B0", "#595959"]
+            labels={
+                "mes": "Mês",
+                "Valor": "Valor (R$)",
+                "Composição": "Composição"
+            },
+            color_discrete_map={
+                "Banco": "#D9D9D9",         # cinza claro
+                "Investimento": "#A6A6A6",  # cinza médio
+                "Caixa": "#595959"          # cinza escuro
+            }
         )
+
+        fig_caixa.update_traces(
+            texttemplate="%{y:,.0f}",
+            textposition="inside"
+        )
+
         fig_caixa.update_layout(
-            title_x=0.3,
-            plot_bgcolor="#fff",
+            title={
+                "text": "DISPONIBILIDADE DE CAIXA",
+                "x": 0.5,       # centraliza o título
+                "xanchor": "center",
+                "yanchor": "top"
+            },
+            plot_bgcolor="#ffffff",
+            paper_bgcolor="#ffffff",
+            xaxis_title="Mês",
+            yaxis_title="Valor (R$)",
+            font=dict(color="#333", size=11),
             legend=dict(
                 orientation="h",
                 yanchor="top",
-                y=-0.2,
+                y=-0.25,
                 xanchor="center",
-                x=0.5
-            )
+                x=0.5,
+                title_text=""
+            ),
+            bargap=0.2,
+            hovermode="x unified"
         )
+
         st.plotly_chart(fig_caixa, use_container_width=True)
+
 
     # Segunda linha de gráficos
     col3, col4 = st.columns(2)
 
     # 3️⃣ Custo / Receita Líquida
     with col3:
-        fig_custo = px.line(
+        fig_custo = px.area(
             df_plot,
             x="mes",
-            y="Custo_Total",
+            y=["Custo_Total", "Receita_Líquida"],
             title="CUSTO / RECEITA LÍQUIDA",
-            labels={"mes": "Mês", "Custo Total": "Valor"}
+            labels={
+                "mes": "Mês",
+                "value": "Valor (R$)",
+                "variable": "Indicador"
+            },
+            color_discrete_map={
+                "Custo_Total": "#595959",    # cinza escuro
+                "Receita_Líquida": "#D9D9D9" # dourado vibrante
+            }
         )
-        fig_custo.update_traces(line=dict(color="#0052CC", width=3), name="Custo Total")
-        fig_custo.add_scatter(
-            x=df_plot["mes"],
-            y=df_plot["Receita_Líquida"],
+
+        # 🔹 Linhas mais suaves e preenchimento translúcido
+        fig_custo.update_traces(
             mode="lines",
-            name="Receita Líquida",
-            line=dict(color="#DAA520", width=3)
+            line=dict(width=3),
+            opacity=0.4
         )
+
+        # 🔹 Layout refinado e legendas bem posicionadas
         fig_custo.update_layout(
-            title_x=0.3,
-            plot_bgcolor="#fff",
+            title={
+            "text": "CUSTO / RECEITA LÍQUIDA",
+            "x": 0.5,       # centraliza o título
+            "xanchor": "center",
+            "yanchor": "top"
+            },
+            plot_bgcolor="#ffffff",
+            paper_bgcolor="#ffffff",
+            xaxis_title="Mês",
+            yaxis_title="Valor (R$)",
+            font=dict(color="#333", size=13),
             legend=dict(
                 orientation="h",
                 yanchor="top",
                 y=-0.2,
                 xanchor="center",
-                x=0.5
-            )
+                x=0.5,
+                title_text=""
+            ),
+            hovermode="x unified"
         )
+
         st.plotly_chart(fig_custo, use_container_width=True)
+
+
 
     # 4️⃣ Receita Líquida (barra simples)
     with col4:
@@ -502,11 +588,20 @@ with abas[0]:  # Aba "Contábil"
             y="Receita_Líquida",
             title="RECEITA LÍQUIDA",
             text_auto=".2s",
-            color_discrete_sequence=["#595959"]
+            color_discrete_sequence=["#595959"],
+            labels={"mes": "Mês", "Receita_Líquida": "Valor (R$)"}
         )
+
         fig_liquida.update_layout(
-            title_x=0.3,
-            plot_bgcolor="#fff",
+            title={
+            "text": "RECEITA LÍQUIDA",
+            "x": 0.5,       # centraliza o título
+            "xanchor": "center",
+            "yanchor": "top"
+            },
+            plot_bgcolor="#ffffff",
+            xaxis_title="Mês",
+            yaxis_title="Receita Líquida (R$)",
             legend=dict(
                 orientation="h",
                 yanchor="top",
@@ -515,7 +610,75 @@ with abas[0]:  # Aba "Contábil"
                 x=0.5
             )
         )
+
         st.plotly_chart(fig_liquida, use_container_width=True)
+    
+
+    col5, = st.columns(1)
+
+    # 5️⃣ Margem de Lucro (%)
+    with col5:
+        # Calcula a margem de lucro
+        df_plot["Margem_de_Lucro"] = (df_plot["Lucro_Líquido"] / df_plot["Receita_Líquida"]) * 100
+
+        # Cria gráfico de linha
+        fig_margem = px.line(
+            df_plot,
+            x="mes",
+            y="Margem_de_Lucro",
+            title="MARGEM DE LUCRO (%)",
+            markers=True,
+            labels={
+                "mes": "Mês",
+                "Margem_de_Lucro": "Margem (%)"
+            },
+            hover_data={
+                "Margem_de_Lucro": ":.2f",  # Formato com 2 casas decimais
+            }
+        )
+
+        # Ajusta visual da linha
+        fig_margem.update_traces(
+            line=dict(width=3, color="#595959"),
+            marker=dict(size=8)
+        )
+
+        # Layout do gráfico
+        fig_margem.update_layout(
+            title={
+                "text": "MARGEM DE LUCRO (%)",
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top"
+            },
+            plot_bgcolor="#FFFFFF",
+            paper_bgcolor="#FFFFFF",
+            font=dict(color="#333333", size=12),
+            xaxis_title="Mês",
+            yaxis_title="Margem (%)",
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True, gridcolor="#E5E5E5"),
+            hovermode="x unified",
+            title_font=dict(size=18, color="#000000"),
+            annotations=[
+                dict(
+                    x=0.5,
+                    y=1.08,
+                    xref="paper",
+                    yref="paper",
+                    text="",  # sem texto visível
+                    showarrow=False,
+                    hovertext="A Margem de Lucro (%) indica a porcentagem da receita líquida que se transforma em lucro líquido, mostrando a eficiência da empresa em gerar lucro.",
+                    hoverlabel=dict(bgcolor="white", font_size=12)
+                )
+            ]
+        )
+
+        # Exibe o gráfico
+        st.plotly_chart(fig_margem, use_container_width=True)
+
+
+
 
 
     
