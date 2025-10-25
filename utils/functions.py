@@ -16,7 +16,7 @@ from typing import List, Dict, Any
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
-
+import re
 
 
 
@@ -40,6 +40,26 @@ def extract_accounts(node, hierarchy=None):
         rows.append(row)
 
     return rows
+
+
+def extract_mes_from_periodo(periodo_str):
+    """
+    Recebe strings como '01/01/2023 - 31/01/2023' ou '31/01/2023'
+    e retorna 'YYYY-MM' (ex: '2023-01').
+    """
+    if not periodo_str:
+        return None
+    # encontra todas as datas no formato dd/mm/yyyy
+    dates = re.findall(r'\d{2}/\d{2}/\d{4}', periodo_str)
+    if not dates:
+        return None
+    # preferir a segunda data (fim do período) se existir, senão a primeira
+    date_str = dates[1] if len(dates) > 1 else dates[0]
+    try:
+        dt = datetime.strptime(date_str, "%d/%m/%Y")
+        return f"{dt.year}-{dt.month:02d}"
+    except Exception:
+        return None
 
 
 def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:

@@ -1,41 +1,81 @@
 import streamlit as st
 import plotly.express as px
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 import pandas as pd
 import os
 import json
 from streamlit_elements import elements, mui, html, editor, nivo, media, lazy, sync, dashboard
-from utils.functions import processar_indicadores_financeiros, extract_accounts
+from utils.functions import processar_indicadores_financeiros, extract_accounts, extract_mes_from_periodo
 
 
 # ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
-# Caminho da pasta
-folder_path = "balancetes/industrial_nordeste"
 
+def get_db(db_name="seu_db"):
+    # primeiro tenta st.secrets (Streamlit Cloud). se não, tenta variável de ambiente MONGO_URI
+    uri = None
+    try:
+        uri = st.secrets["mongo"]["uri"]
+    except Exception:
+        uri = os.environ.get("MONGO_URI")
+
+    if not uri:
+        st.error(
+            "MONGO_URI não encontrado. Configure st.secrets ou a variável de ambiente 'MONGO_URI'.")
+        st.stop()
+
+    client = MongoClient(uri)
+    return client[db_name]
+
+
+db = get_db("ConsulX_db")
+colecao = db["industrial_nordeste"]
 all_rows = []
 
-# Loop em todos os arquivos JSON da pasta
-for filename in os.listdir(folder_path):
-    if filename.endswith(".json"):
-        file_path = os.path.join(folder_path, filename)
+# Itera sobre documentos na coleção
+for doc in colecao.find():
+    source_id = doc.get('_id')
 
-        # Extrai o mês do nome do arquivo (ex: Balancete.2023-01.normalized.json → 2023-01)
-        mes = filename.split(".")[1]
+    # 1) Extrair mes a partir de metadata.periodo (conforme informado)
+    mes = None
+    metadata = doc.get('metadata', {}) or {}
+    periodo = metadata.get('periodo') or metadata.get(
+        'period') or metadata.get('periodo_referencia')
+    mes = extract_mes_from_periodo(periodo)
 
-        # Lê o JSON
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    # 3) Encontrar seções/objects no documento que contenham "descricao"
+    candidate_sections = []
 
-        # Percorre as seções e extrai as contas
-        for section in data.values():
-            if isinstance(section, dict) and "descricao" in section:
-                contas = extract_accounts(section)
-                # Adiciona o mês a cada conta extraída
-                for conta in contas:
-                    conta["mes"] = mes
-                all_rows.extend(contas)
+    # Priorizar campos que costumam agrupar o payload
+    for key in ('data', 'content', 'payload', 'balancete', 'document'):
+        if key in doc and isinstance(doc[key], dict):
+            # se doc[key] é um dict contendo várias seções (values), checar cada value
+            for v in doc[key].values():
+                if isinstance(v, dict) and 'descricao' in v:
+                    candidate_sections.append(v)
+            # também checar se o próprio doc[key] tem 'descricao' (caso seja um único node)
+            if isinstance(doc[key], dict) and 'descricao' in doc[key]:
+                candidate_sections.append(doc[key])
 
+    # Se nada encontrado, varrer todos os dicionários em doc e coletar os que tenham 'descricao'
+    if not candidate_sections:
+        for v in doc.values():
+            if isinstance(v, dict) and 'descricao' in v:
+                candidate_sections.append(v)
+
+    # 4) Para cada seção encontrada, extrair contas com extract_accounts (já fornecida)
+    for section in candidate_sections:
+        contas = extract_accounts(section)
+        for conta in contas:
+            conta["mes"] = mes
+            conta["source_id"] = source_id
+        all_rows.extend(contas)
 # Cria o DataFrame consolidado
 df_hist = pd.DataFrame(all_rows)
+
+indicadores_historicos = processar_indicadores_financeiros(df_hist)
+ultimo_mes = indicadores_historicos.index.max()  # extrai ultimo mês
+indicadores_foto = indicadores_historicos.loc[indicadores_historicos.index == ultimo_mes]# filtra os indicadores do ultimo mês (visão foto)
 
 # ======================
 # FUNÇÃO DE FILTRO DE ANO
@@ -86,9 +126,7 @@ def filtro_ano(df_plot):
 
 
 
-indicadores_historicos = processar_indicadores_financeiros(df_hist)
-ultimo_mes = indicadores_historicos.index.max() #extrai ultimo mês
-indicadores_foto = indicadores_historicos.loc[indicadores_historicos.index == ultimo_mes] #filtra os indicadores do ultimo mês (visão foto)
+
 
 
 # Dados de exemplo
