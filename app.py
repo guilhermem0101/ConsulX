@@ -5,7 +5,6 @@ from pymongo.server_api import ServerApi
 import pandas as pd
 import os
 import json
-from streamlit_elements import elements, mui, html, editor, nivo, media, lazy, sync, dashboard
 from utils.functions import processar_indicadores_financeiros, extract_accounts, extract_mes_from_periodo
 
 # ======================
