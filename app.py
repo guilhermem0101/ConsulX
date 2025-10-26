@@ -9,7 +9,8 @@ from utils.db import load_all_rows_from_mongo
 # ======================
 # CONFIGURAÇÕES GERAIS
 # ======================
-st.set_page_config(page_title="Dashboard Contábil", layout="wide")
+st.set_page_config(page_title="ConsulX - Dashboard Contábil",
+                   page_icon="favicon.png", layout="wide")
 # ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
 
 # ======================
