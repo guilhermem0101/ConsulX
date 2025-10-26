@@ -8,7 +8,10 @@ import json
 from streamlit_elements import elements, mui, html, editor, nivo, media, lazy, sync, dashboard
 from utils.functions import processar_indicadores_financeiros, extract_accounts, extract_mes_from_periodo
 
-
+# ======================
+# CONFIGURAÇÕES GERAIS
+# ======================
+st.set_page_config(page_title="Dashboard Contábil", layout="wide")
 # ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
 
 def get_db(db_name="seu_db"):
@@ -179,10 +182,7 @@ disponibilidade_caixa = indicadores_foto['Disponibilidade_Caixa'].values[0]
 
 
 
-# ======================
-# CONFIGURAÇÕES GERAIS
-# ======================
-st.set_page_config(page_title="Dashboard Contábil", layout="wide")
+
 
 
 
