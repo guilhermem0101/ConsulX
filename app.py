@@ -13,67 +13,114 @@ from utils.functions import processar_indicadores_financeiros, extract_accounts,
 st.set_page_config(page_title="Dashboard Contábil", layout="wide")
 # ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
 
-def get_db(db_name="seu_db"):
-    # primeiro tenta st.secrets (Streamlit Cloud). se não, tenta variável de ambiente MONGO_URI
-    uri = None
-    try:
-        uri = st.secrets["mongo"]["uri"]
-    except Exception:
-        uri = os.environ.get("MONGO_URI")
+# ======================
+# DB: conexão + leitura com cache
+# ======================
 
+
+def _get_mongo_uri_from_secrets():
+    try:
+        return st.secrets["mongo"]["uri"]
+    except Exception:
+        return os.environ.get("MONGO_URI")
+
+
+def get_db_client():
+    uri = _get_mongo_uri_from_secrets()
     if not uri:
         st.error(
             "MONGO_URI não encontrado. Configure st.secrets ou a variável de ambiente 'MONGO_URI'.")
         st.stop()
+    try:
+        client = MongoClient(uri, serverSelectionTimeoutMS=5000)
+        # força a checagem de conexão rápida
+        client.server_info()
+        return client
+    except Exception as e:
+        st.error(f"Falha ao conectar no MongoDB: {e}")
+        st.stop()
 
-    client = MongoClient(uri)
-    return client[db_name]
 
+@st.cache_data(ttl=60 * 30)  # cache por 30 minutos; ajusta se precisar
+def load_all_rows_from_mongo(db_name="ConsulX_db", coll_name="industrial_nordeste", limit=None):
+    """
+    Carrega e processa os balancetes da coleção. Cacheado para evitar re-leitura a cada rerun.
+    """
+    client = get_db_client()
+    db = client[db_name]
+    colecao = db[coll_name]
 
-db = get_db("ConsulX_db")
-colecao = db["industrial_nordeste"]
-all_rows = []
+    all_rows = []
+    # opcional: colocar limit para testes locais (evitar timeouts no deploy)
+    cursor = colecao.find()
+    if limit:
+        cursor = cursor.limit(limit)
 
-# Itera sobre documentos na coleção
-for doc in colecao.find():
-    source_id = doc.get('_id')
+    for doc in cursor:
+        source_id = doc.get('_id')
+        metadata = doc.get('metadata', {}) or {}
+        periodo = metadata.get('periodo') or metadata.get(
+            'period') or metadata.get('periodo_referencia')
+        mes = extract_mes_from_periodo(periodo)
 
-    # 1) Extrair mes a partir de metadata.periodo (conforme informado)
-    mes = None
-    metadata = doc.get('metadata', {}) or {}
-    periodo = metadata.get('periodo') or metadata.get(
-        'period') or metadata.get('periodo_referencia')
-    mes = extract_mes_from_periodo(periodo)
+        candidate_sections = []
+        for key in ('data', 'content', 'payload', 'balancete', 'document'):
+            if key in doc and isinstance(doc[key], dict):
+                # check values
+                for v in doc[key].values():
+                    if isinstance(v, dict) and 'descricao' in v:
+                        candidate_sections.append(v)
+                if isinstance(doc[key], dict) and 'descricao' in doc[key]:
+                    candidate_sections.append(doc[key])
 
-    # 3) Encontrar seções/objects no documento que contenham "descricao"
-    candidate_sections = []
-
-    # Priorizar campos que costumam agrupar o payload
-    for key in ('data', 'content', 'payload', 'balancete', 'document'):
-        if key in doc and isinstance(doc[key], dict):
-            # se doc[key] é um dict contendo várias seções (values), checar cada value
-            for v in doc[key].values():
+        if not candidate_sections:
+            for v in doc.values():
                 if isinstance(v, dict) and 'descricao' in v:
                     candidate_sections.append(v)
-            # também checar se o próprio doc[key] tem 'descricao' (caso seja um único node)
-            if isinstance(doc[key], dict) and 'descricao' in doc[key]:
-                candidate_sections.append(doc[key])
 
-    # Se nada encontrado, varrer todos os dicionários em doc e coletar os que tenham 'descricao'
-    if not candidate_sections:
-        for v in doc.values():
-            if isinstance(v, dict) and 'descricao' in v:
-                candidate_sections.append(v)
+        for section in candidate_sections:
+            contas = extract_accounts(section)
+            for conta in contas:
+                conta["mes"] = mes
+                conta["source_id"] = source_id
+            all_rows.extend(contas)
 
-    # 4) Para cada seção encontrada, extrair contas com extract_accounts (já fornecida)
-    for section in candidate_sections:
-        contas = extract_accounts(section)
-        for conta in contas:
-            conta["mes"] = mes
-            conta["source_id"] = source_id
-        all_rows.extend(contas)
-# Cria o DataFrame consolidado
-df_hist = pd.DataFrame(all_rows)
+    return all_rows
+
+
+# Carrega os dados com spinner e cache
+with st.spinner("Carregando dados do MongoDB (isso pode demorar na primeira vez)..."):
+    # Para debug/primeiro deploy: limite para evitar timeout (remova o limit em produção quando estiver seguro)
+    all_rows = load_all_rows_from_mongo(limit=None)
+
+# Cria DataFrame de forma segura
+if not all_rows:
+    st.warning(
+        "Nenhum documento/processamento retornou dados. Verifique a coleção ou o extractor.")
+    df_hist = pd.DataFrame()  # DataFrame vazio para evitar crashes
+else:
+    df_hist = pd.DataFrame(all_rows)
+
+# Processa indicadores apenas se houver dados
+if df_hist.empty:
+    indicadores_historicos = pd.DataFrame()
+    indicadores_foto = pd.DataFrame()
+else:
+    indicadores_historicos = processar_indicadores_financeiros(df_hist)
+    ultimo_mes = indicadores_historicos.index.max()
+    if pd.isna(ultimo_mes):
+        indicadores_foto = pd.DataFrame()
+    else:
+        indicadores_foto = indicadores_historicos.loc[indicadores_historicos.index == ultimo_mes]
+
+# Proteção ao pegar valores (evita IndexError que quebra a renderização)
+
+
+def safe_get(ind_df, col):
+    try:
+        return float(ind_df[col].values[0])
+    except Exception:
+        return 0.0
 
 indicadores_historicos = processar_indicadores_financeiros(df_hist)
 ultimo_mes = indicadores_historicos.index.max()  # extrai ultimo mês
