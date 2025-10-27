@@ -106,26 +106,26 @@ indicadores = [
     {
         "titulo": "Endividamento Geral",
         "descricao": "Grau em que os Ativos Totais são financiados por recursos de terceiros.",
-        "memoria": "Passivo circulante / Passivo circulante + Exigível Longo Prazo",
+        "memoria": "Passivo Total / Ativo Total",
         "valor": round(indicadores_foto['Endividamento_Geral'].values[0], 2)
     },
     {
-        "titulo": "Endividamento",
-        "descricao": "Relacionamento entre a posição do Patrimônio Líquido em relação aos Empréstimos.",
-        "memoria": "Passivo circulante + Exigível a Longo Prazo / Ativo Total",
-        "valor": round(indicadores_foto['Endividamento'].values[0], 2)
+        "titulo": "Margem Líquida Lucro",
+        "descricao": "Indica quanto de lucro líquido a empresa obtém para cada real de vendas (ou prestação de serviços).",
+        "memoria": "Lucro Líquido / Receita Líquida",
+        "valor": round(indicadores_foto['Margem_de_Lucro'].values[0], 2)
+    },
+    {
+        "titulo": "ROE",
+        "descricao": "Grua de rentabilidade sobre o capiral próprio.",
+        "memoria": "Lucro Líquido / Patrimônio Líquido",
+        "valor": round(indicadores_foto['Retorno_Sobre_Patrimonio_Liquido'].values[0], 2)
     },
     {
         "titulo": "Liquidez Corrente",
         "descricao": "Capacidade de a empresa saldar suas dívidas a curto prazo, em até 360 dias.",
         "memoria": "Ativo Circulante / Passivo Circulante",
         "valor": round(indicadores_foto['Liquidez_Corrente'].values[0], 2)
-    },
-    {
-        "titulo": "Solvência",
-        "descricao": "Grau em que a empresa dispõe em Ativos Totais para o pagamento total de dívidas.",
-        "memoria": "Ativo Total / Passivo Circulante + Exigível a Longo Prazo",
-        "valor": round(indicadores_foto['Solvencia_Geral'].values[0], 2)
     },
     {
         "titulo": "Liquidez Geral",
@@ -692,4 +692,5 @@ with abas[0]:  # Aba "Contábil"
 with abas[3]:  # Aba "Analítico"
     st.subheader("Métricas do Balancete")
     indicadores_historicos
+    
     

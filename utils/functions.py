@@ -102,7 +102,7 @@ def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:
         df_indices["Impostos_Receita"]
     df_indices["Lucro_Bruto"] = df_indices["Receita_Líquida"] - \
         df_indices["Custo_Total"]
-    df_indices["Lucro_Líquido"] = df_indices["Lucro_Bruto"]
+    df_indices["Lucro_Líquido"] = df_indices["Lucro_Bruto"] 
 
     # Processamento adicional para tabela pivot
     df_agrupado = df.groupby(['nivel_2', 'mes'], as_index=False)[
@@ -110,7 +110,7 @@ def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:
     filtro = df_agrupado.loc[
         df_agrupado['nivel_2'].isin(
             ['ATIVO CIRCULANTE', 'PASSIVO CIRCULANTE',
-             'ATIVO NÃO CIRCULANTE', 'PASSIVO NÃO CIRCULANTE'])
+             'ATIVO NÃO CIRCULANTE', 'PASSIVO NÃO CIRCULANTE', 'PATRIMÔNIO LÍQUIDO'])
     ]
 
     # Criação da tabela pivot
@@ -150,8 +150,14 @@ def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:
         tabela_pivot['Ativo_Total']
     tabela_pivot['Endividamento_Geral'] = tabela_pivot['Endividamento']
     
+    tabela_pivot["Margem_de_Lucro"] = (
+        tabela_pivot["Lucro_Líquido"] / tabela_pivot["Receita_Líquida"])
+    
+    tabela_pivot["Retorno_Sobre_Patrimonio_Liquido"] = (
+        tabela_pivot["Lucro_Líquido"] / tabela_pivot["PATRIMÔNIO LÍQUIDO"])
+    
     tabela_pivot = tabela_pivot.rename(
-        columns={"ATIVO CIRCULANTE": "Ativo_Circulante", "ATIVO NÃO CIRCULANTE": "Ativo_Nao_Circulante", "PASSIVO CIRCULANTE": "Passivo_Circulante", "PASSIVO NÃO CIRCULANTE": "Passivo_Nao_Circulante"})
+        columns={"ATIVO CIRCULANTE": "Ativo_Circulante", "ATIVO NÃO CIRCULANTE": "Ativo_Nao_Circulante", "PASSIVO CIRCULANTE": "Passivo_Circulante", "PASSIVO NÃO CIRCULANTE": "Passivo_Nao_Circulante", "PATRIMÔNIO LÍQUIDO": "Patrimonio_Liquido"})
 
     return tabela_pivot
 
