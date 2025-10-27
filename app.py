@@ -117,7 +117,7 @@ indicadores = [
     },
     {
         "titulo": "ROE",
-        "descricao": "Grua de rentabilidade sobre o capiral próprio.",
+        "descricao": "Retorno Sobre Patrimonio Liquido - Grua de rentabilidade sobre o capiral próprio.",
         "memoria": "Lucro Líquido / Patrimônio Líquido",
         "valor": round(indicadores_foto['Retorno_Sobre_Patrimonio_Liquido'].values[0], 2)
     },
