@@ -736,8 +736,7 @@ with abas[2]:
                 text="",  # sem texto visível
                 showarrow=False,
                 hovertext=(
-                    "A Margem de Lucro (%) indica a porcentagem da receita líquida que se transforma "
-                    "em lucro líquido, mostrando a eficiência da empresa em gerar lucro."
+                    ""
                 ),
                 hoverlabel=dict(bgcolor="white", font_size=12)
             )
