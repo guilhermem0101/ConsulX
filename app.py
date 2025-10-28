@@ -10,6 +10,7 @@ import os
 import json
 from utils.functions import processar_indicadores_financeiros, prophet_ar2_forecast, forecast_future_periods
 from utils.db import load_all_rows_from_mongo
+import plotly.graph_objects as go
 # ======================
 # CONFIGURAÇÕES GERAIS
 # ======================
@@ -111,37 +112,43 @@ indicadores = [
         "titulo": "Endividamento Geral",
         "descricao": "Grau em que os Ativos Totais são financiados por recursos de terceiros.",
         "memoria": "Passivo Total / Ativo Total",
-        "valor": round(indicadores_foto['Endividamento_Geral'].values[0], 2)
+        "valor": round(indicadores_foto['Endividamento_Geral'].values[0], 2),
+        "tooltip": "Quanto mais perto de 0, melhor. Indica menor dependência de capital de terceiros."
     },
     {
         "titulo": "Margem Líquida de Lucro",
         "descricao": "Indica quanto de lucro líquido a empresa obtém para cada real de vendas (ou prestação de serviços).",
         "memoria": "Lucro Líquido / Receita Líquida",
-        "valor": round(indicadores_foto['Margem_de_Lucro'].values[0], 2)
+        "valor": round(indicadores_foto['Margem_de_Lucro'].values[0], 2),
+        "tooltip": "Quanto maior, melhor. Indica a eficiência da empresa em gerar lucro sobre a receita."
     },
     {
         "titulo": "ROE",
-        "descricao": "Retorno Sobre Patrimonio Liquido - Grau de rentabilidade sobre o capiral próprio.",
+        "descricao": "Retorno Sobre Patrimônio Líquido - Grau de rentabilidade sobre o capital próprio.",
         "memoria": "Lucro Líquido / Patrimônio Líquido",
-        "valor": round(indicadores_foto['Retorno_Sobre_Patrimonio_Liquido'].values[0], 2)
+        "valor": round(indicadores_foto['Retorno_Sobre_Patrimonio_Liquido'].values[0], 2),
+        "tooltip": "Quanto maior, melhor. Mostra o retorno obtido pelos acionistas sobre o capital investido."
     },
     {
         "titulo": "Liquidez Corrente",
         "descricao": "Capacidade de a empresa saldar suas dívidas a curto prazo, em até 360 dias.",
         "memoria": "Ativo Circulante / Passivo Circulante",
-        "valor": round(indicadores_foto['Liquidez_Corrente'].values[0], 2)
+        "valor": round(indicadores_foto['Liquidez_Corrente'].values[0], 2),
+        "tooltip": "O ideal é acima de 1. Mostra se a empresa tem recursos suficientes para cobrir dívidas de curto prazo."
     },
     {
         "titulo": "Liquidez Geral",
         "descricao": "Situação financeira da empresa a longo prazo, incluindo dívidas acima de 360 dias.",
         "memoria": "(Ativo Circulante + Realizável a Longo Prazo) / (Passivo Circulante + Exigível a Longo Prazo)",
-        "valor": round(indicadores_foto['Liquidez_Geral'].values[0], 2)
+        "valor": round(indicadores_foto['Liquidez_Geral'].values[0], 2),
+        "tooltip": "O ideal é acima de 1. Indica a capacidade de a empresa quitar dívidas totais com ativos totais."
     },
     {
         "titulo": "Liquidez Imediata",
         "descricao": "Quanto a empresa possui de imediato no caixa, frente às obrigações exigíveis.",
         "memoria": "Disponível / Passivo Circulante",
-        "valor": round(indicadores_foto['Liquidez_Imediata'].values[0], 2)
+        "valor": round(indicadores_foto['Liquidez_Imediata'].values[0], 2),
+        "tooltip": "Quanto maior, melhor. Mostra o quanto a empresa tem de recursos imediatos para pagar dívidas."
     }
 ]
 # ======================== INIT ========================
@@ -298,6 +305,11 @@ with abas[1]:  # Aba "Índices"
     </style>
     """, unsafe_allow_html=True)
 
+
+# ======================
+# ÍNDICES
+# ======================
+
     cols_per_row = 3
     for i in range(0, len(indicadores), cols_per_row):
         cols = st.columns(cols_per_row)
@@ -311,7 +323,16 @@ with abas[1]:  # Aba "Índices"
                         <b>Memória de Cálculo:</b> {indicador['memoria']}
                     </p>
                 </div>
-                <h2>{indicador['valor']}</h2>
+                <p title="{indicador['tooltip']}" style="
+                text-align:center;
+                font-size:28px;
+                font-weight:bold;
+                color:#333;
+                margin:8px 0 0 0;
+                cursor:help;
+                ">
+                {indicador['valor']}
+                </p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -374,6 +395,9 @@ with abas[0]:  # Aba "Contábil"
                 
         </style>
         """, unsafe_allow_html=True)
+
+
+
 
     # ======================
     # MÉTRICAS SUPERIORES
@@ -630,7 +654,7 @@ with abas[0]:  # Aba "Contábil"
     # 5️⃣ Margem de Lucro (%)
     with col5:
         # Calcula a margem de lucro
-        df_plot["Margem_de_Lucro"] = (df_plot["Lucro_Líquido"] / df_plot["Receita_Líquida"]) * 100
+        df_plot["Margem_de_Lucro"] = (df_plot["Lucro_Líquido"] / df_plot["Receita_Líquida"])  # mantém como fração
 
         # Cria gráfico de linha
         fig_margem = px.line(
@@ -644,7 +668,7 @@ with abas[0]:  # Aba "Contábil"
                 "Margem_de_Lucro": "Margem (%)"
             },
             hover_data={
-                "Margem_de_Lucro": ":.2f",  # Formato com 2 casas decimais
+                "Margem_de_Lucro": ":.1%",  # Formato percentual
             }
         )
 
@@ -668,7 +692,7 @@ with abas[0]:  # Aba "Contábil"
             xaxis_title="Mês",
             yaxis_title="Margem (%)",
             xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=True, gridcolor="#E5E5E5"),
+            yaxis=dict(showgrid=True, gridcolor="#E5E5E5", tickformat=".0%"),  # Eixo Y em porcentagem
             hovermode="x unified",
             title_font=dict(size=18, color="#000000"),
             annotations=[
@@ -688,6 +712,7 @@ with abas[0]:  # Aba "Contábil"
         # Exibe o gráfico
         st.plotly_chart(fig_margem, use_container_width=True)
 
+
 with abas[2]:
     
     indicadores_historicos.index = pd.to_datetime(
@@ -701,100 +726,127 @@ with abas[2]:
 
     res = resultado['forecast_df']
 
-    # Cria o gráfico de linhas
-    fig = px.line(
-        res,
-        x="ds",
-        y=["y_true", "y_pred"],
-        labels={"ds": "Mês", "value": "Margem (%)", "variable": "Série"},
-        title="Back Test"
-    )
+    # ===========================
+    # TÍTULO DA ABA / SEÇÃO
+    # ===========================
+    st.markdown("### Predição dos próximos 6 meses com base nos últimos 3 anos")
 
-    # Atualiza o layout com o mesmo estilo
-    fig.update_layout(
-        title={
-            "text": "Back Test",
-            "x": 0.5,
-            "xanchor": "center",
-            "yanchor": "top"
-        },
+    # =====================================
+    # 1️⃣ BACK TEST - COMPARATIVO REAL x PREVISTO
+    # =====================================
+    fig_backtest = go.Figure()
+
+    # Linha prevista
+    fig_backtest.add_trace(go.Scatter(
+        x=res["ds"],
+        y=res["y_pred"],
+        mode='lines+markers',
+        name='Previsto',
+        line=dict(color='#a6a6a6', width=3),
+        marker=dict(size=6)
+    ))
+
+    # Linha real (preta)
+    fig_backtest.add_trace(go.Scatter(
+        x=res["ds"],
+        y=res["y_true"],
+        mode='lines+markers',
+        name='Real',
+        line=dict(color='#000000', width=3),  # linha preta grossa
+        marker=dict(size=6)
+    ))
+
+    fig_backtest.update_layout(
+        title="<b>BACK TEST - REAL x PREVISTO</b><br><sup>Comparação entre valores reais e previstos da Liquidez Imediata.</sup>",
+        xaxis_title="Mês",
+        yaxis_title="Liquidez Imediata",
         plot_bgcolor="#FFFFFF",
         paper_bgcolor="#FFFFFF",
-        font=dict(color="#333333", size=12),
-        xaxis_title="Mês",
-        yaxis_title="Margem (%)",
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor="#E5E5E5"),
+        font=dict(color="#333", size=12),
+        xaxis=dict(showgrid=False, tickangle=-45),
+        yaxis=dict(showgrid=True, gridcolor="#E5E5E5", tickformat=".0%"),
         hovermode="x unified",
-        title_font=dict(size=18, color="#000000"),
-        annotations=[
-            dict(
-                x=0.5,
-                y=1.08,
-                xref="paper",
-                yref="paper",
-                text="",  # sem texto visível
-                showarrow=False,
-                hovertext=(
-                    ""
-                ),
-                hoverlabel=dict(bgcolor="white", font_size=12)
-            )
-        ]
+        legend=dict(
+            orientation="h",
+            y=-0.35,   # legenda mais afastada do eixo X
+            x=0.5,
+            xanchor="center",
+            font=dict(size=11)
+        )
     )
 
-    # Exibe o gráfico (em Streamlit, por exemplo)
-    st.plotly_chart(fig, use_container_width=True)
-    
+    st.plotly_chart(fig_backtest, use_container_width=True)
 
 
-    # Cria o gráfico de linha da previsão futura
+
+    # =====================================
+    # 2️⃣ PREVISÃO FUTURA - LIQUIDEZ IMEDIATA
+    # =====================================
+
+    # Cálculos estatísticos
+    mean_value = previsao_futura["forecast"].mean()
+    std_value = previsao_futura["forecast"].std()
+
+    # Gráfico com mais picos e responsividade ao cursor
     fig_previsao = px.line(
         previsao_futura,
         x="ds",
         y="forecast",
-        labels={"ds": "Mês", "forecast": "Liquidez Imediata (Prevista)"},
-        title="PREVISÃO FUTURA - LIQUIDEZ IMEDIATA"
+        labels={"ds": "Mês", "forecast": "Liquidez Imediata Prevista"},
+        markers=True,  # exibe os pontos
+        line_shape="linear"  # evita suavização excessiva
     )
 
-    # Estilo igual ao gráfico anterior
-    fig_previsao.update_traces(
-        line=dict(color="#1f77b4", width=3))  # azul padrão plotly
+    # Limites de controle e média histórica
+    fig_previsao.add_hline(y=mean_value, line_dash="solid", line_color="#000", line_width=2,)
+    fig_previsao.add_hline(y=mean_value + 3*std_value, line_dash="dot", line_color="#999")
+    fig_previsao.add_hline(y=mean_value - 3*std_value, line_dash="dot", line_color="#999")
+
+    # Estilo da linha principal
+    fig_previsao.update_traces(line=dict(color="#a6a6a6", width=3), marker=dict(size=6, color="#595959", line=dict(width=1, color="#fff")))
+
+    # Layout e storytelling
     fig_previsao.update_layout(
-        title={
-            "text": "PREVISÃO FUTURA - LIQUIDEZ IMEDIATA",
-            "x": 0.5,
-            "xanchor": "center",
-            "yanchor": "top"
-        },
+        title="<b>PREVISÃO FUTURA - LIQUIDEZ IMEDIATA</b><br><sup>Inclui média histórica e limites de variação para análise de tendência.</sup>",
         plot_bgcolor="#FFFFFF",
         paper_bgcolor="#FFFFFF",
-        font=dict(color="#333333", size=12),
+        font=dict(color="#333", size=12),
         xaxis_title="Mês",
         yaxis_title="Liquidez Imediata (Prevista)",
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor="#E5E5E5"),
+        xaxis=dict(showgrid=False, tickangle=-45),
+        yaxis=dict(showgrid=True, gridcolor="#E5E5E5", tickformat=".0%"),
         hovermode="x unified",
-        title_font=dict(size=18, color="#000000"),
         annotations=[
             dict(
-                x=0.5,
-                y=1.08,
-                xref="paper",
-                yref="paper",
-                text="",  # sem texto visível
+                text="Linha preta = Média histórica",
+                xref="paper", yref="paper",
+                x=0.99, y=0.9,
                 showarrow=False,
-                hovertext=(
-                    "A previsão de Liquidez Imediata indica a capacidade futura da empresa de honrar "
-                    "suas obrigações de curto prazo com recursos disponíveis."
-                ),
-                hoverlabel=dict(bgcolor="white", font_size=12)
+                font=dict(size=12, color="#333"),
+                align="left"
             )
-        ]
+        ],
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.35,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=11),
+            bgcolor="rgba(0,0,0,0)"
+        )
     )
 
-    # Exibe o gráfico (em Streamlit)
+    # Exibe o gráfico
     st.plotly_chart(fig_previsao, use_container_width=True)
+
+
+
+
+
+
+
+
 
 
 with abas[3]:  # Aba "Analítico"
