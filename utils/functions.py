@@ -12,6 +12,10 @@ extrai folhas (contas analíticas) e calcula indicadores financeiros:
 
 """
 
+import math
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from prophet import Prophet
+import numpy as np
 from typing import List, Dict, Any
 from pathlib import Path
 from datetime import datetime
@@ -162,3 +166,149 @@ def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:
     return tabela_pivot
 
 
+def prophet_ar2_forecast(df, target_col, horizon=6, yearly_seasonality=True):
+    """
+    Aplica Prophet com regressão autoregressiva (AR(2)) para previsão univariada.
+    
+    Parâmetros:
+    -----------
+    df : pd.DataFrame
+        DataFrame contendo uma coluna datetime (índice ou coluna nomeada 'mes', 'data', etc.) e a série alvo.
+    target_col : str
+        Nome da coluna alvo (ex: 'Lucro_Líquido').
+    horizon : int, opcional
+        Quantidade de períodos futuros a prever (default=6).
+    yearly_seasonality : bool, opcional
+        Ativa sazonalidade anual (default=True).
+    
+    Retorna:
+    --------
+    dict :
+        {'MAE': valor, 'RMSE': valor, 'MAPE': valor, 'forecast_df': DataFrame}
+    """
+
+    # --- Preparação ---
+    s = df[target_col].astype(float).dropna()
+    # tenta detectar coluna de datas
+    if df.index.inferred_type == "datetime64":
+        s.index = pd.to_datetime(s.index)
+    elif 'ds' in df.columns:
+        s.index = pd.to_datetime(df['ds'])
+    elif 'mes' in df.columns:
+        s.index = pd.to_datetime(df['mes'])
+    else:
+        raise ValueError(
+            "⚠️ O DataFrame precisa ter um índice datetime ou uma coluna de datas ('ds' ou 'mes').")
+
+    data = pd.DataFrame({'ds': s.index, 'y': s.values}).reset_index(drop=True)
+
+    # criar lags
+    data['lag1'] = data['y'].shift(1)
+    data['lag2'] = data['y'].shift(2)
+    data = data.dropna().reset_index(drop=True)
+
+    # Split treino/test
+    h = horizon
+    train = data.iloc[:-h].copy()
+    test = data.iloc[-h:].copy()
+
+    # Treinar Prophet com regressors
+    m = Prophet(yearly_seasonality=yearly_seasonality, daily_seasonality=False)
+    m.add_regressor('lag1')
+    m.add_regressor('lag2')
+    m.fit(train[['ds', 'y', 'lag1', 'lag2']])
+
+    # --- Previsão recursiva ---
+    last_row = train.iloc[-1].copy()
+    preds, pred_dates = [], []
+
+    lag1 = float(last_row['y'])
+    lag2 = float(last_row['lag1'])
+
+    for i in range(h):
+        next_ds = test['ds'].iloc[i]
+        df_next = pd.DataFrame(
+            {'ds': [next_ds], 'lag1': [lag1], 'lag2': [lag2]})
+        forecast_next = m.predict(df_next)
+        yhat = float(forecast_next['yhat'].iloc[0])
+        preds.append(yhat)
+        pred_dates.append(next_ds)
+        lag2 = lag1
+        lag1 = yhat
+
+    # --- Avaliação ---
+    y_true = test['y'].values
+    y_pred = np.array(preds)
+
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = math.sqrt(mean_squared_error(y_true, y_pred))
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+    # montar DataFrame de resultados
+    results = pd.DataFrame(
+        {'ds': pred_dates, 'y_true': y_true, 'y_pred': y_pred})
+
+    # imprimir resultados
+    print(f"📈 AR(2) via Prophet - coluna: {target_col}")
+    print(f"MAE :  {mae:.4f}")
+    print(f"RMSE:  {rmse:.4f}")
+    print(f"MAPE:  {mape:.2f}%")
+
+    return {
+        'MAE': mae,
+        'RMSE': rmse,
+        'MAPE': mape,
+        'forecast_df': results
+    }
+
+
+def forecast_future_periods(df, target_col, horizon=6, yearly_seasonality=True):
+    """
+    Usa Prophet com AR(2) para prever meses futuros após o último registro da série.
+    """
+    s = df[target_col].astype(float).dropna()
+
+    # Detecta e converte o índice de data
+    if df.index.inferred_type != "datetime64":
+        if 'ds' in df.columns:
+            s.index = pd.to_datetime(df['ds'])
+        elif 'mes' in df.columns:
+            s.index = pd.to_datetime(df['mes'])
+        else:
+            raise ValueError(
+                "⚠️ O DataFrame precisa ter índice datetime ou coluna ('ds' ou 'mes').")
+
+    data = pd.DataFrame({'ds': s.index, 'y': s.values}).reset_index(drop=True)
+    data['lag1'] = data['y'].shift(1)
+    data['lag2'] = data['y'].shift(2)
+    data = data.dropna().reset_index(drop=True)
+
+    # Treinar o modelo em todos os dados disponíveis
+    m = Prophet(yearly_seasonality=yearly_seasonality, daily_seasonality=False)
+    m.add_regressor('lag1')
+    m.add_regressor('lag2')
+    m.fit(data[['ds', 'y', 'lag1', 'lag2']])
+
+    # Começar previsão a partir do último ponto conhecido
+    last_row = data.iloc[-1].copy()
+    lag1 = float(last_row['y'])
+    lag2 = float(last_row['lag1'])
+    last_date = data['ds'].iloc[-1]
+
+    preds, dates = [], []
+
+    for i in range(1, horizon + 1):
+        next_date = last_date + pd.DateOffset(months=i)
+        df_next = pd.DataFrame(
+            {'ds': [next_date], 'lag1': [lag1], 'lag2': [lag2]})
+        forecast_next = m.predict(df_next)
+        yhat = float(forecast_next['yhat'].iloc[0])
+        preds.append(yhat)
+        dates.append(next_date)
+        # Atualiza os lags
+        lag2 = lag1
+        lag1 = yhat
+
+    forecast_df = pd.DataFrame({'ds': dates, 'forecast': preds})
+    print("✅ Previsão futura concluída com sucesso!")
+    return forecast_df

@@ -1,10 +1,14 @@
+import tempfile
+from fpdf import FPDF
+from prophet import Prophet
 import streamlit as st
 import plotly.express as px
+import base64
 
 import pandas as pd
 import os
 import json
-from utils.functions import processar_indicadores_financeiros
+from utils.functions import processar_indicadores_financeiros, prophet_ar2_forecast, forecast_future_periods
 from utils.db import load_all_rows_from_mongo
 # ======================
 # CONFIGURAÇÕES GERAIS
@@ -110,14 +114,14 @@ indicadores = [
         "valor": round(indicadores_foto['Endividamento_Geral'].values[0], 2)
     },
     {
-        "titulo": "Margem Líquida Lucro",
+        "titulo": "Margem Líquida de Lucro",
         "descricao": "Indica quanto de lucro líquido a empresa obtém para cada real de vendas (ou prestação de serviços).",
         "memoria": "Lucro Líquido / Receita Líquida",
         "valor": round(indicadores_foto['Margem_de_Lucro'].values[0], 2)
     },
     {
         "titulo": "ROE",
-        "descricao": "Retorno Sobre Patrimonio Liquido - Grua de rentabilidade sobre o capiral próprio.",
+        "descricao": "Retorno Sobre Patrimonio Liquido - Grau de rentabilidade sobre o capiral próprio.",
         "memoria": "Lucro Líquido / Patrimônio Líquido",
         "valor": round(indicadores_foto['Retorno_Sobre_Patrimonio_Liquido'].values[0], 2)
     },
@@ -684,11 +688,116 @@ with abas[0]:  # Aba "Contábil"
         # Exibe o gráfico
         st.plotly_chart(fig_margem, use_container_width=True)
 
-
-
-
-
+with abas[2]:
     
+    indicadores_historicos.index = pd.to_datetime(
+        indicadores_historicos.index, format="%Y-%m")
+    
+    resultado = prophet_ar2_forecast(
+    indicadores_historicos, target_col='Liquidez_Imediata', horizon=6)
+    
+    previsao_futura = forecast_future_periods(
+        indicadores_historicos, target_col='Liquidez_Imediata', horizon=6)
+
+    res = resultado['forecast_df']
+
+    # Cria o gráfico de linhas
+    fig = px.line(
+        res,
+        x="ds",
+        y=["y_true", "y_pred"],
+        labels={"ds": "Mês", "value": "Margem (%)", "variable": "Série"},
+        title="Back Test"
+    )
+
+    # Atualiza o layout com o mesmo estilo
+    fig.update_layout(
+        title={
+            "text": "Back Test",
+            "x": 0.5,
+            "xanchor": "center",
+            "yanchor": "top"
+        },
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
+        font=dict(color="#333333", size=12),
+        xaxis_title="Mês",
+        yaxis_title="Margem (%)",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor="#E5E5E5"),
+        hovermode="x unified",
+        title_font=dict(size=18, color="#000000"),
+        annotations=[
+            dict(
+                x=0.5,
+                y=1.08,
+                xref="paper",
+                yref="paper",
+                text="",  # sem texto visível
+                showarrow=False,
+                hovertext=(
+                    "A Margem de Lucro (%) indica a porcentagem da receita líquida que se transforma "
+                    "em lucro líquido, mostrando a eficiência da empresa em gerar lucro."
+                ),
+                hoverlabel=dict(bgcolor="white", font_size=12)
+            )
+        ]
+    )
+
+    # Exibe o gráfico (em Streamlit, por exemplo)
+    st.plotly_chart(fig, use_container_width=True)
+    
+
+
+    # Cria o gráfico de linha da previsão futura
+    fig_previsao = px.line(
+        previsao_futura,
+        x="ds",
+        y="forecast",
+        labels={"ds": "Mês", "forecast": "Liquidez Imediata (Prevista)"},
+        title="PREVISÃO FUTURA - LIQUIDEZ IMEDIATA"
+    )
+
+    # Estilo igual ao gráfico anterior
+    fig_previsao.update_traces(
+        line=dict(color="#1f77b4", width=3))  # azul padrão plotly
+    fig_previsao.update_layout(
+        title={
+            "text": "PREVISÃO FUTURA - LIQUIDEZ IMEDIATA",
+            "x": 0.5,
+            "xanchor": "center",
+            "yanchor": "top"
+        },
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
+        font=dict(color="#333333", size=12),
+        xaxis_title="Mês",
+        yaxis_title="Liquidez Imediata (Prevista)",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor="#E5E5E5"),
+        hovermode="x unified",
+        title_font=dict(size=18, color="#000000"),
+        annotations=[
+            dict(
+                x=0.5,
+                y=1.08,
+                xref="paper",
+                yref="paper",
+                text="",  # sem texto visível
+                showarrow=False,
+                hovertext=(
+                    "A previsão de Liquidez Imediata indica a capacidade futura da empresa de honrar "
+                    "suas obrigações de curto prazo com recursos disponíveis."
+                ),
+                hoverlabel=dict(bgcolor="white", font_size=12)
+            )
+        ]
+    )
+
+    # Exibe o gráfico (em Streamlit)
+    st.plotly_chart(fig_previsao, use_container_width=True)
+
+
 with abas[3]:  # Aba "Analítico"
     st.subheader("Métricas do Balancete")
     indicadores_historicos
