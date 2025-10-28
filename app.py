@@ -757,7 +757,7 @@ with abas[2]:
     ))
 
     fig_backtest.update_layout(
-        title="<b>BACK TEST - REAL x PREVISTO</b><br><sup>Comparação entre valores reais e previstos da Liquidez Imediata.</sup>",
+        title="<b>BACKTEST - REAL x PREVISTO</b><br><sup>Comparação entre valores reais e previstos da Liquidez Imediata.</sup>",
         xaxis_title="Mês",
         yaxis_title="Liquidez Imediata",
         plot_bgcolor="#FFFFFF",
