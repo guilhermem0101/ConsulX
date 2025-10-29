@@ -139,7 +139,7 @@ indicadores = [
     {
         "titulo": "Liquidez Geral",
         "descricao": "Situação financeira da empresa a longo prazo, incluindo dívidas acima de 360 dias.",
-        "memoria": "(Ativo Circulante + Realizável a Longo Prazo) / (Passivo Circulante + Exigível a Longo Prazo)",
+        "memoria": "Ativo Total / Passivo Total",
         "valor": round(indicadores_foto['Liquidez_Geral'].values[0], 2),
         "tooltip": "O ideal é acima de 1. Indica a capacidade de a empresa quitar dívidas totais com ativos totais."
     },
