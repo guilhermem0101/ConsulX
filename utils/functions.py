@@ -102,7 +102,7 @@ def processar_indicadores_financeiros(df: pd.DataFrame) -> pd.DataFrame:
     })
 
     # Cálculos de indicadores
-    df_indices["Receita_Líquida"] = df_indices["Receita_Bruta"] - \
+    df_indices["Receita_Líquida"] = df_indices["Receita_Bruta"] + \
         df_indices["Impostos_Receita"]
     df_indices["Lucro_Bruto"] = df_indices["Receita_Líquida"] - \
         df_indices["Custo_Total"]

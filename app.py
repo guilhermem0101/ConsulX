@@ -405,7 +405,7 @@ with abas[0]:  # Aba "Contábil"
 
     col1, col2, col3, col4, col5 = st.columns(5)
     metrics = [
-        ("Receita Bruta", receita_bruta, "Total de receitas antes de qualquer dedução ou custo"),
+        ("Faturamento", receita_bruta, "Total de receitas antes de qualquer dedução ou custo"),
         ("Receita Líquida", receita_liquida, "Receita após deduções de impostos, devoluções e descontos"),
         ("Lucro Bruto", lucro_bruito, "Receita líquida menos custos diretos de produção"),
         ("Lucro Líquido", lucro_liquido, "Lucro após todas as despesas, impostos e custos"),
@@ -839,11 +839,6 @@ with abas[2]:
 
     # Exibe o gráfico
     st.plotly_chart(fig_previsao, use_container_width=True)
-
-
-
-
-
 
 
 
