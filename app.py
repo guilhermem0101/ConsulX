@@ -853,4 +853,4 @@ with abas[3]:  # Aba "Analítico"
     st.subheader("Métricas do Balancete")
     indicadores_historicos
     
-    
+    df_hist

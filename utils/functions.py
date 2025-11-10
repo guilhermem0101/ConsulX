@@ -310,5 +310,5 @@ def forecast_future_periods(df, target_col, horizon=6, yearly_seasonality=True):
         lag1 = yhat
 
     forecast_df = pd.DataFrame({'ds': dates, 'forecast': preds})
-    print("✅ Previsão futura concluída com sucesso!")
+    
     return forecast_df
