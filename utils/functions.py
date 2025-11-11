@@ -5,10 +5,11 @@ calcula_resultados.py
 Lê um ou mais arquivos JSON de balancete (hierárquico, contas sintéticas com children),
 extrai folhas (contas analíticas) e calcula indicadores financeiros:
 - Receita Bruta
-- Receita Líquida (Receita Bruta - impostos sobre vendas)
-- Lucro Bruto (Receita Líquida - custos)
-- Lucro Líquido (Lucro Bruto - despesas)
+- Receita Líquida = (Receita Bruta - impostos sobre vendas)
+- Lucro Bruto = (Receita Líquida - custos)
+- Lucro Líquido = (Lucro Bruto - despesas)
 - Disponibilidade de Caixa (caixa + bancos + aplicações)
+- ML = Lucro Bruto/Receita Líquida  =  (Receita Bruta - impostos sobre vendas - custos)/(Receita Bruta - impostos sobre vendas)
 
 """
 
