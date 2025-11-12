@@ -90,7 +90,7 @@ def filtro_ano(df_plot):
     ano_selecionado = st.multiselect(
         "Selecione o(s) ano(s):",
         options=anos,
-        default=anos[-1:],  # último ano por padrão
+        default=anos,#[-1:],  # último ano por padrão
         label_visibility="collapsed"
     )
 
@@ -848,4 +848,4 @@ with abas[3]:  # Aba "Analítico"
     st.subheader("Métricas do Balancete")
     indicadores_historicos
     
-    #df_hist
+    df_hist
