@@ -105,7 +105,8 @@ def filtro_ano(df_plot):
 serie = indicadores_historicos['Margem_de_Lucro']
 
 
-previsao_futura, ordem = previsao_auto_arima(serie)
+previsao_futura = previsao_auto_arima(serie)[0]
+ordem = previsao_auto_arima(serie)[1]
 
 previsao_futura = previsao_futura.to_frame().reset_index()
 previsao_futura.columns = ['ds', 'forecast']
