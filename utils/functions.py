@@ -390,5 +390,5 @@ def previsao_auto_arima(serie):
     modelo_auto = auto_arima(
         serie, seasonal=False, trace=True)
     previsoes = modelo_auto.predict(n_periods=6)
-    
-    return previsoes
+    ordem = modelo_auto.order
+    return previsoes, ordem
