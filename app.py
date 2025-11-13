@@ -8,7 +8,7 @@ import base64
 import pandas as pd
 import os
 import json
-from utils.functions import processar_indicadores_financeiros, prophet_ar2_forecast, forecast_future_periods
+from utils.functions import processar_indicadores_financeiros, prophet_ar2_forecast, forecast_future_periods, backtest_auto_arima, previsao_auto_arima
 from utils.db import load_all_rows_from_mongo
 import plotly.graph_objects as go
 # ======================
@@ -90,7 +90,7 @@ def filtro_ano(df_plot):
     ano_selecionado = st.multiselect(
         "Selecione o(s) ano(s):",
         options=anos,
-        default=anos,#[-1:],  # último ano por padrão
+        default=anos[-1:],  # último ano por padrão
         label_visibility="collapsed"
     )
 
@@ -102,7 +102,19 @@ def filtro_ano(df_plot):
     return df_filtrado, ano_selecionado    
 
 
+serie = indicadores_historicos['Margem_de_Lucro']
 
+previsao_futura = previsao_auto_arima(serie)
+previsao_futura = previsao_futura.to_frame().reset_index()
+previsao_futura.columns = ['ds', 'forecast']
+
+# res = resultado['forecast_df']
+resultado = backtest_auto_arima(serie, n_testes=6, seasonal=False)
+res = pd.DataFrame({
+    'ds': resultado['reais'].index,
+    'y_true': resultado['reais'].values,
+    'y_pred': resultado['previsoes'].values
+})
 
 
 
@@ -149,6 +161,27 @@ indicadores = [
         "memoria": "Disponível / Passivo Circulante",
         "valor": round(indicadores_foto['Liquidez_Imediata'].values[0], 2),
         "tooltip": "Quanto maior, melhor. Mostra o quanto a empresa tem de recursos imediatos para pagar dívidas."
+    }
+]
+
+indicadores_prev = [
+    {
+        "titulo": "Erro Médio Absoluto",
+        "descricao": "Indica, em média, o quanto as previsões estão afastadas dos valores reais",
+        "valor": round(resultado['mae'], 3),
+        "tooltip": "Mede o erro médio absoluto entre os valores observados ​yt e os previstos y#t."
+    },
+    {
+        "titulo": "Raiz do Erro Quadrático Médio",
+        "descricao": "Mede o erro médio, mas penaliza mais fortemente erros grandes, pois os erros são elevados ao quadrado", 
+        "valor": round(resultado['rmse'], 3),
+        "tooltip": "RMSE é mais sensível a outliers."
+    },
+    {
+        "titulo": "Erro Percentual Absoluto Médio",
+        "descricao": "Indica o erro relativo médio em porcentagem.",
+        "valor":  f"{round(resultado['mape'], 2)}%",
+        "tooltip": "É independente da escala da variável, facilitando comparação entre modelos e datasets."
     }
 ]
 # ======================== INIT ========================
@@ -715,16 +748,6 @@ with abas[0]:  # Aba "Contábil"
 
 with abas[2]:
     
-    indicadores_historicos.index = pd.to_datetime(
-        indicadores_historicos.index, format="%Y-%m")
-    
-    resultado = prophet_ar2_forecast(
-    indicadores_historicos, target_col='Liquidez_Imediata', horizon=6)
-    
-    previsao_futura = forecast_future_periods(
-        indicadores_historicos, target_col='Liquidez_Imediata', horizon=6)
-
-    res = resultado['forecast_df']
 
     # ===========================
     # TÍTULO DA ABA / SEÇÃO
@@ -757,9 +780,9 @@ with abas[2]:
     ))
 
     fig_backtest.update_layout(
-        title="<b>BACKTEST - REAL x PREVISTO</b><br><sup>Comparação entre valores reais e previstos da Liquidez Imediata.</sup>",
+        title="<b>BACKTEST - REAL x PREVISTO</b><br><sup>Comparação entre valores reais e previstos da Margem Líquida de Lucro.</sup>",
         xaxis_title="Mês",
-        yaxis_title="Liquidez Imediata",
+        yaxis_title="Margem Líquida de Lucro",
         plot_bgcolor="#FFFFFF",
         paper_bgcolor="#FFFFFF",
         font=dict(color="#333", size=12),
@@ -780,7 +803,7 @@ with abas[2]:
 
 
     # =====================================
-    # 2️⃣ PREVISÃO FUTURA - LIQUIDEZ IMEDIATA
+    # 2️⃣ PREVISÃO FUTURA - Margem Líquida de Lucro
     # =====================================
 
     # Cálculos estatísticos
@@ -792,7 +815,7 @@ with abas[2]:
         previsao_futura,
         x="ds",
         y="forecast",
-        labels={"ds": "Mês", "forecast": "Liquidez Imediata Prevista"},
+        labels={"ds": "Mês", "forecast": "Margem Líquida de Lucro Prevista"},
         markers=True,  # exibe os pontos
         line_shape="linear"  # evita suavização excessiva
     )
@@ -807,12 +830,12 @@ with abas[2]:
 
     # Layout e storytelling
     fig_previsao.update_layout(
-        title="<b>PREVISÃO FUTURA - LIQUIDEZ IMEDIATA</b><br><sup>Inclui média histórica e limites de variação para análise de tendência.</sup>",
+        title="<b>PREVISÃO FUTURA - Margem Líquida de Lucro</b><br><sup>Inclui média histórica e limites de variação para análise de tendência.</sup>",
         plot_bgcolor="#FFFFFF",
         paper_bgcolor="#FFFFFF",
         font=dict(color="#333", size=12),
         xaxis_title="Mês",
-        yaxis_title="Liquidez Imediata (Prevista)",
+        yaxis_title="Margem Líquida de Lucro (Prevista)",
         xaxis=dict(showgrid=False, tickangle=-45),
         yaxis=dict(showgrid=True, gridcolor="#E5E5E5", tickformat=".0%"),
         hovermode="x unified",
@@ -840,12 +863,32 @@ with abas[2]:
     # Exibe o gráfico
     st.plotly_chart(fig_previsao, use_container_width=True)
 
-
-
+    cols_per_row = 3
+    for i in range(0, len(indicadores_prev), cols_per_row):
+        cols = st.columns(cols_per_row)
+        for col, indicador in zip(cols, indicadores_prev[i:i+cols_per_row]):
+            col.markdown(f"""
+            <div class="metric-card">
+                <div>
+                    <h4>{indicador['titulo']}</h4>
+                    <p>{indicador['descricao']}</p>                    
+                </div>
+                <p title="{indicador['tooltip']}" style="
+                text-align:center;
+                font-size:28px;
+                font-weight:bold;
+                color:#333;
+                margin:8px 0 0 0;
+                cursor:help;
+                ">
+                {indicador['valor']}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 with abas[3]:  # Aba "Analítico"
     st.subheader("Métricas do Balancete")
     indicadores_historicos
     
-    df_hist
+    #df_hist

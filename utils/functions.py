@@ -13,6 +13,8 @@ extrai folhas (contas analíticas) e calcula indicadores financeiros:
 
 """
 
+from pmdarima import auto_arima
+import matplotlib.pyplot as plt
 import math
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from prophet import Prophet
@@ -22,7 +24,6 @@ from pathlib import Path
 from datetime import datetime
 import pandas as pd
 import re
-
 
 
 # Extrator de balancete para dataframe
@@ -313,3 +314,81 @@ def forecast_future_periods(df, target_col, horizon=6, yearly_seasonality=True):
     forecast_df = pd.DataFrame({'ds': dates, 'forecast': preds})
     
     return forecast_df
+
+
+def backtest_auto_arima(serie, n_testes=6, h=1, seasonal=False, plot=False):
+    """
+    Executa um backtest simples com auto_arima (rolling forecast origin).
+
+    Parâmetros:
+    -----------
+    serie : pd.Series
+        Série temporal univariada (index datetime e valores numéricos)
+    n_testes : int
+        Número de períodos no conjunto de teste
+    h : int
+        Horizonte de previsão (número de passos à frente)
+    seasonal : bool
+        Se True, busca modelo sazonal (SARIMA)
+    plot : bool
+        Se True, plota gráfico com resultados
+
+    Retorna:
+    --------
+    dict com:
+        - previsoes: pd.Series com as previsões
+        - reais: pd.Series com os valores reais
+        - mae, rmse, mape: métricas de erro
+        - modelos: lista dos modelos ajustados (um por iteração)
+    """
+
+    y = serie.copy()
+    y_treino, y_teste = y[:-n_testes], y[-n_testes:]
+
+    previsoes = []
+    reais = []
+    modelos = []
+
+    for i in range(n_testes):
+        y_treino_temp = y[:-(n_testes - i)]
+
+        modelo = auto_arima(
+            y_treino_temp,
+            seasonal=seasonal,
+            suppress_warnings=True,
+            stepwise=True,
+            error_action='ignore'
+        )
+        modelos.append(modelo)
+
+        pred = modelo.predict(n_periods=h)[0]
+        previsoes.append(pred)
+        reais.append(y_teste.iloc[i])
+
+    # converter previsões para série
+    previsoes = pd.Series(previsoes, index=y_teste.index)
+    reais = pd.Series(reais, index=y_teste.index)
+
+    # métricas
+    mae = mean_absolute_error(reais, previsoes)
+    rmse = np.sqrt(mean_squared_error(reais, previsoes))
+    mape = np.mean(np.abs((reais - previsoes) / reais)) * 100
+
+   
+
+    return {
+        'previsoes': previsoes,
+        'reais': reais,
+        'mae': mae,
+        'rmse': rmse,
+        'mape': mape,
+        'modelos': modelos
+    }
+
+
+def previsao_auto_arima(serie):
+    modelo_auto = auto_arima(
+        serie, seasonal=False, trace=True)
+    previsoes = modelo_auto.predict(n_periods=6)
+    
+    return previsoes
