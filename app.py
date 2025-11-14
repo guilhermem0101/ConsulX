@@ -18,10 +18,10 @@ st.set_page_config(page_title="ConsulX - Dashboard Contábil",
                    page_icon="favicon.png", layout="wide")
 # ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
 option = st.selectbox(
-    "Selecione a Empresa",
-    ("Industrial Nordeste", "Industria Tecno Metais"),
+    "Selecione a Empresa:",
+    ("Casa do Norte Piuaizinho", "Tecnotubo Metal Industria", "Clínica Odontológica OdontoCare", "Imobiliária Imperial Fagundes", "Juliano Castro de Oliveira Advogados"),
 )
-st.write("Empresa selecionada:", option)
+
 # ======================
 # DB: conexão + leitura com cache
 # ======================
@@ -30,7 +30,7 @@ with st.spinner("Carregando dados do MongoDB (isso pode demorar na primeira vez)
     #option = 
     
 
-    if option == "Industrial Nordeste":
+    if option == "Casa do Norte Piuaizinho":
         all_rows = load_all_rows_from_mongo(
             db_name="ConsulX_db", coll_name="industrial_nordeste", limit=None)
     else:
@@ -104,7 +104,7 @@ def filtro_ano(df_plot):
     ano_selecionado = st.multiselect(
         "Selecione o(s) ano(s):",
         options=anos,
-        default=anos, #[-1:],  # último ano por padrão
+        default=anos[-1:],  # último ano por padrão
         label_visibility="collapsed"
     )
 
@@ -184,21 +184,21 @@ indicadores = [
 indicadores_prev = [
     {
         "titulo": "Erro Médio Absoluto",
-        "descricao": "Indica, em média, o quanto as previsões estão afastadas dos valores reais",
+        "descricao": "Mostra, em média, o quanto as previsões ficam distantes dos valores reais, indicando o tamanho típico do erro",
         "valor": round(resultado['mae'], 3),
-        "tooltip": "Mede o erro médio absoluto entre os valores observados ​yt e os previstos y#t."
+        "tooltip": "Quanto mais próximo de 0, maior a precisão"
     },
     {
         "titulo": "Raiz do Erro Quadrático Médio",
-        "descricao": "Mede o erro médio, mas penaliza mais fortemente erros grandes, pois os erros são elevados ao quadrado", 
+        "descricao": "Calcula o erro médio das previsões, dando peso maior aos grandes erros por elevar cada erro ao quadrado, portanto, quanto maior o erro, maior o peso da métrica", 
         "valor": round(resultado['rmse'], 3),
-        "tooltip": "RMSE é mais sensível a outliers."
+        "tooltip": "Quanto mais próximo de 0, mais assertivo"
     },
     {
-        "titulo": "Erro Percentual Absoluto Médio",
-        "descricao": "Indica o erro relativo médio em porcentagem.",
+        "titulo": "Erro Percentual Médio Absoluto (%)",
+        "descricao": "Indica o erro relativo médio em porcentagem, representando qual a margem absoluta de erro das previsões.",
         "valor":  f"{round(resultado['mape'], 2)}%",
-        "tooltip": "É independente da escala da variável, facilitando comparação entre modelos e datasets."
+        "tooltip": "É independente da escala da variável, é importante estar mais próximo do 0"
     }
 ]
 # ======================== INIT ========================
@@ -794,7 +794,7 @@ with abas[2]:
     ))
 
     fig_backtest.update_layout(
-        title=f"<b>BACKTEST - REAL x PREVISTO </b><br><sup>Comparação entre valores reais e previstos da Margem Líquida de Lucro. <br><i>Ordem do modelo ARIMA: {ordem}</i></sup>",
+        title=f"<b>BACKTEST - ML LUCRO REAL x ML LUCRO PREVISTO</b><br><sup>Comparação entre valores reais e previstos da Margem Líquida de Lucro. <br><i>Ordem do modelo ARIMA: {ordem}</i></sup>",
         xaxis_title="Mês",
         yaxis_title="Margem Líquida de Lucro",
         plot_bgcolor="#FFFFFF",
@@ -844,7 +844,7 @@ with abas[2]:
 
     # Layout e storytelling
     fig_previsao.update_layout(
-        title=f"<b>PREVISÃO FUTURA - Margem Líquida de Lucro </b><br><sup>Inclui média histórica e limites de variação para análise de tendência.<br><i>Ordem do modelo ARIMA: {ordem}</i></sup>",
+        title=f"<b>PREVISÃO FUTURA - MARGEM DE LUCRO LÍQUIDA </b><br><sup>Inclui média histórica e limites de variação para análise de tendência.<br></sup>",
         plot_bgcolor="#FFFFFF",
         paper_bgcolor="#FFFFFF",
         font=dict(color="#333", size=12),
