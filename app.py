@@ -17,13 +17,27 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="ConsulX - Dashboard Contábil",
                    page_icon="favicon.png", layout="wide")
 # ======================== LÊ TODOS OS BALANCETES TEMPORAIS ========================
-
+option = st.selectbox(
+    "Selecione a Empresa",
+    ("Industrial Nordeste", "Industria Tecno Metais"),
+)
+st.write("Empresa selecionada:", option)
 # ======================
 # DB: conexão + leitura com cache
 # ======================
 with st.spinner("Carregando dados do MongoDB (isso pode demorar na primeira vez)..."):
     # Para debug/primeiro deploy: limite para evitar timeout (remova o limit em produção quando estiver seguro)
-    all_rows = load_all_rows_from_mongo(limit=None)
+    #option = 
+    
+
+    if option == "Industrial Nordeste":
+        all_rows = load_all_rows_from_mongo(
+            db_name="ConsulX_db", coll_name="industrial_nordeste", limit=None)
+    else:
+        all_rows = load_all_rows_from_mongo(
+            db_name="ConsulX_db", coll_name="Industria_Tecno_Metais", limit=None)
+    
+    #all_rows = load_all_rows_from_mongo(db_name="ConsulX_db", coll_name="Industria_Tecno_Metais", limit=None)
 
 # Cria DataFrame de forma segura
 if not all_rows:
@@ -198,10 +212,6 @@ disponibilidade_caixa = indicadores_foto['Disponibilidade_Caixa'].values[0]
 
 
 
-
-
-
-
 # ======================
 # SIDEBAR (MENU LATERAL)
 # ======================
@@ -303,6 +313,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 abas = st.tabs(["Contábil", "Índices", "Projeção", "Analítico"])
+
 
 
 
