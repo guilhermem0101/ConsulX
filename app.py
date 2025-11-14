@@ -783,7 +783,7 @@ with abas[2]:
     ))
 
     fig_backtest.update_layout(
-        title=f"<b>BACKTEST - REAL x PREVISTO COM MODELO ARIMA{ordem}</b><br><sup>Comparação entre valores reais e previstos da Margem Líquida de Lucro. </br></sup>",
+        title=f"<b>BACKTEST - REAL x PREVISTO </b><br><sup>Comparação entre valores reais e previstos da Margem Líquida de Lucro. <br><i>Ordem do modelo ARIMA: {ordem}</i></sup>",
         xaxis_title="Mês",
         yaxis_title="Margem Líquida de Lucro",
         plot_bgcolor="#FFFFFF",
@@ -833,7 +833,7 @@ with abas[2]:
 
     # Layout e storytelling
     fig_previsao.update_layout(
-        title=f"<b>PREVISÃO FUTURA - Margem Líquida de Lucro COM MODELO ARIMA{ordem}</b><br><sup>Inclui média histórica e limites de variação para análise de tendência.</sup>",
+        title=f"<b>PREVISÃO FUTURA - Margem Líquida de Lucro </b><br><sup>Inclui média histórica e limites de variação para análise de tendência.<br><i>Ordem do modelo ARIMA: {ordem}</i></sup>",
         plot_bgcolor="#FFFFFF",
         paper_bgcolor="#FFFFFF",
         font=dict(color="#333", size=12),
