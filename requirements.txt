@@ -1,13 +1,13 @@
-﻿streamlit
+streamlit
 pymongo
-pandas
+pandas==2.1.4
 plotly
-scikit-learn
-prophet
-python-dotenv    # opcional para desenvolvimento local
+scikit-learn==1.3.2
+prophet==1.1.5
+python-dotenv
 fpdf2
 numpy==1.26.4
-pmdarima==2.0.3
-setuptools>=65.5.0
 pmdarima==2.0.4
+setuptools>=65.5.0
+
 
