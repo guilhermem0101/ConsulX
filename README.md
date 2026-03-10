@@ -82,9 +82,4 @@ Este projeto foi desenvolvido com fins **educacionais e de portfólio**, com o o
 
 ## 👨‍💻 Autor
 
-**Allison Santos**
-
-📊 Data Analytics | Tecnologia | Business Intelligence
-
-GitHub: https://github.com/allisonsnts  
-Portfólio: https://allisonsnts.github.io/Portfolio/
+**Allison Santos, Guilherme Matheus**
